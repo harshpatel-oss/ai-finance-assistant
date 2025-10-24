@@ -16,7 +16,12 @@ app.use(express.static('public'));
 app.use(cookieParser());
 //cookie parser middleware lagaya ab hum cookies ko read kr payenge
 
+//routes import
 
+import userRouter from './routes/user.routes.js';
 
-export default express;
+app.use('/api/v1/users' , userRouter);
+ 
+
+export default app;
 
