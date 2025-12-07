@@ -1,22 +1,54 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-
+import { API_PATHS } from "../utils/apiPaths";
+import {axiosInstance} from "../utils/axiosInstance"
+import { UserContext } from "../context/userContext.jsx";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const {updatedUser}= useContext(UserContext);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+ const handleLogin = async (e) => {
+  e.preventDefault();
+  // Basic validation
+  if (!email || !password) {
+    alert("Please enter both email and password.");
+    return;
+  }
+  try {                                                          
+    const response = await axiosInstance.post(API_PATHS.AUTH.LOGIN, {
+      email,
+      password,
+    });
 
-    // Temporary dummy login
-    if (email && password) {
-      localStorage.setItem("token", "sample_token");
-      navigate("/dashboard");
-    } else {
-      alert("Please fill all fields!");
+    console.log("Login success:", response.data);
+
+    // ✅ Extract from nested "data"
+    const { accessToken, refreshToken, user } = response.data.data;
+
+    if (!accessToken) {
+      alert("Login failed: no access token returned.");
+      return;
     }
-  };
+
+    // ✅ Store tokens
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+    localStorage.setItem("user", JSON.stringify(user));
+
+    // ✅ Navigate to dashboard
+    navigate("/dashboard");
+  } catch (error) {
+    console.error("Login error:", error);
+    const message =
+      error.response?.data?.message ||
+      error.message ||
+      "An error occurred during login. Please try again.";
+    alert(message);
+  }
+};
+
 
   return (
     <div className="flex flex-row justify-center items-center h-screen  bg-gray-100">

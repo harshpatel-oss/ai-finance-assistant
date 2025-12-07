@@ -13,17 +13,20 @@ import {
   Navigate,
   useLocation
 } from "react-router-dom"
+import { User } from 'lucide-react'
+import UserProvider from './context/userContext.jsx'
 
-// ✅ App wrapper
 function App() {
   return (
+    <UserProvider>
     <Router>
       <AppContent />
     </Router>
+    </UserProvider>
   );
 }
 
-// ✅ Inside Router so we can use useLocation
+
 function AppContent() {
   const location = useLocation();
   const hideNavbar = location.pathname === '/login' || location.pathname === '/signUp';
@@ -43,9 +46,9 @@ function AppContent() {
   );
 }
 
-// ✅ Redirects based on auth status
+
 const Root = () => {
-  const isAuthenticated = !!localStorage.getItem("token");
+  const isAuthenticated = !!localStorage.getItem("accessToken");
   return isAuthenticated ? (
     <Navigate to="/dashboard" />
   ) : (
