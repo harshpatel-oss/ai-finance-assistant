@@ -79,10 +79,10 @@ const Income = () => {
     }));
   };
 
-  const onEmojiClick = (event, emojiObject) => {
+  const onEmojiClick = (emojiData) => {
     setFormData((prev) => ({
       ...prev,
-      icon: emojiObject.emoji,
+      icon: emojiData.emoji,
     }));
     setShowEmojiPicker(false);
   };

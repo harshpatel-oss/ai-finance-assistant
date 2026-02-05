@@ -24,7 +24,7 @@ function Login() {
 
     console.log("Login success:", response.data);
 
-    // ✅ Extract from nested "data"
+    // Extract from nested "data"
     const { accessToken, refreshToken, user } = response.data.data;
 
     if (!accessToken) {
@@ -32,12 +32,12 @@ function Login() {
       return;
     }
 
-    // ✅ Store tokens
+    // tore tokens
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
     localStorage.setItem("user", JSON.stringify(user));
 
-    // ✅ Navigate to dashboard
+    // Navigate to dashboard
     navigate("/dashboard");
   } catch (error) {
     console.error("Login error:", error);

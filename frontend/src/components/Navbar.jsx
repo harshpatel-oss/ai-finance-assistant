@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react"; // for mobile menu icons
 
@@ -6,11 +6,24 @@ const Navbar = () => {
   const navigate = useNavigate();
   const isAuthenticated = !!localStorage.getItem("accessToken");
   const [isOpen, setIsOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
+  const user = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user") || "null");
+    } catch (e) {
+      return null;
+    }
+  }, [isAuthenticated]);
+
+  const avatarUrl =
+    user &&
+    (typeof user === "string" ? user : (user.avatar ||  (user.avatar && user.avatar.url)));
 
   const handleLogout = () => {
-     localStorage.removeItem("accessToken");
-+    localStorage.removeItem("refreshToken");
-+    localStorage.removeItem("user");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
     navigate("/login");
   };
 
@@ -38,6 +51,23 @@ const Navbar = () => {
               <Link to="/expense" className="hover:text-gray-200">
                 Expense
               </Link>
+              {avatarUrl && !imgError ? (
+                <img
+                  src={avatarUrl}
+                  alt={user?.name || user?.email || "avatar"}
+                  title={user?.name || user?.email}
+                  className="w-10 h-10 rounded-full object-cover ml-4 border-2 border-white cursor-pointer"
+                  onClick={() => navigate("/dashboard")}
+                  onError={() => setImgError(true)}
+                />
+              ) : user ? (
+                <div
+                  //onClick={() => navigate("/profile")}
+                  className="w-10 h-10 rounded-full bg-white text-blue-600 font-semibold flex items-center justify-center ml-4 cursor-pointer"
+                >
+                  {(user.name || user.username || user.email || "").toString().slice(0,1).toUpperCase()}
+                </div>
+              ) : null}
               <button
                 onClick={handleLogout}
                 className="bg-red-500 px-3 py-1 rounded-md hover:bg-red-600 transition cursor-pointer"
@@ -67,6 +97,22 @@ const Navbar = () => {
         <div className="md:hidden bg-blue-700 flex flex-col space-y-2 px-6 py-3">
           {isAuthenticated ? (
             <>
+              {avatarUrl && !imgError ? (
+                <div className="flex items-center gap-3 mb-2">
+                  <img
+                    src={avatarUrl}
+                    alt={user?.name || "avatar"}
+                    className="w-12 h-12 rounded-full object-cover border-2 border-white"
+                    onError={() => setImgError(true)}
+                  />
+                  <div className="text-white font-semibold">{user?.name || user?.email}</div>
+                </div>
+              ) : user ? (
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-12 h-12 rounded-full bg-white text-blue-600 font-semibold flex items-center justify-center">{(user.name || user.username || user.email || "").toString().slice(0,1).toUpperCase()}</div>
+                  <div className="text-white font-semibold">{user?.name || user?.email}</div>
+                </div>
+              ) : null}
               <Link
                 to="/dashboard"
                 onClick={() => setIsOpen(false)}
