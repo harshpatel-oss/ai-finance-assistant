@@ -24,6 +24,9 @@ export const API_PATHS = {
         DELETE_EXPENSE : (expenseId) => `/api/v1/expense/delete/${expenseId}`,
         DOWNLOAD_EXPENSE:"/api/v1/expense/download-excel"
     },
+    AI:{
+        AI_ASSISTANT:"/api/v1/ai/ai-assistant"
+    }
 
 }
     

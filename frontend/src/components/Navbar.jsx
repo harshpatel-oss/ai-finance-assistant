@@ -1,170 +1,207 @@
 import React, { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X } from "lucide-react"; // for mobile menu icons
+import { Menu, X } from "lucide-react";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const isAuthenticated = !!localStorage.getItem("accessToken");
+
   const [isOpen, setIsOpen] = useState(false);
   const [imgError, setImgError] = useState(false);
 
   const user = useMemo(() => {
     try {
       return JSON.parse(localStorage.getItem("user") || "null");
-    } catch (e) {
+    } catch {
       return null;
     }
   }, [isAuthenticated]);
 
-  const avatarUrl =
-    user &&
-    (typeof user === "string" ? user : (user.avatar ||  (user.avatar && user.avatar.url)));
+  const avatarUrl = user?.avatar?.url || user?.avatar || null;
+
+  const initials =
+    (user?.name || user?.username || user?.email || "")
+      .charAt(0)
+      .toUpperCase();
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
+    localStorage.clear();
     navigate("/login");
   };
 
   return (
-    <nav className="bg-blue-600 text-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center ">
-        {/* Left: Logo */}
-        <h1
-          className="text-lg sm:text-xl font-bold cursor-pointer"
-          onClick={() => navigate("/dashboard")}
-        >
-          💰 AI Finance Assistant
-        </h1>
+    <>
+      <nav className="bg-blue-600 text-white shadow-md fixed top-0 left-0 right-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          
+          {/* Logo */}
+          <div
+            className="text-lg sm:text-xl font-bold cursor-pointer flex items-center gap-2"
+            onClick={() => navigate("/dashboard")}
+          >
+            💰 AI Finance Assistant
+          </div>
 
-        {/* Right: Desktop Links */}
-        <div className="hidden ml-auto md:flex items-center space-x-6 ">
-          {isAuthenticated ? (
-            <>
-              <Link to="/dashboard" className="hover:text-gray-200">
-                Dashboard
-              </Link>
-              <Link to="/income" className="hover:text-gray-200">
-                Income
-              </Link>
-              <Link to="/expense" className="hover:text-gray-200">
-                Expense
-              </Link>
-              {avatarUrl && !imgError ? (
-                <img
-                  src={avatarUrl}
-                  alt={user?.name || user?.email || "avatar"}
-                  title={user?.name || user?.email}
-                  className="w-10 h-10 rounded-full object-cover ml-4 border-2 border-white cursor-pointer"
-                  onClick={() => navigate("/dashboard")}
-                  onError={() => setImgError(true)}
-                />
-              ) : user ? (
-                <div
-                  //onClick={() => navigate("/profile")}
-                  className="w-10 h-10 rounded-full bg-white text-blue-600 font-semibold flex items-center justify-center ml-4 cursor-pointer"
-                >
-                  {(user.name || user.username || user.email || "").toString().slice(0,1).toUpperCase()}
-                </div>
-              ) : null}
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 px-3 py-1 rounded-md hover:bg-red-600 transition cursor-pointer"
-              >
-                Logout
-              </button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="hover:text-gray-200">Login</Link>
-              <Link to="/signUp" className="hover:text-gray-200">Sign Up</Link>
-            </>
-          )}
-        </div>
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center gap-6">
+            {isAuthenticated ? (
+              <>
+                <Link to="/dashboard" className="hover:text-gray-200">
+                  Dashboard
+                </Link>
+                <Link to="/income" className="hover:text-gray-200">
+                  Income
+                </Link>
+                <Link to="/expense" className="hover:text-gray-200">
+                  Expense
+                </Link>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden focus:outline-none"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile Dropdown Menu */}
-      {isOpen && (
-        <div className="md:hidden bg-blue-700 flex flex-col space-y-2 px-6 py-3">
-          {isAuthenticated ? (
-            <>
-              {avatarUrl && !imgError ? (
-                <div className="flex items-center gap-3 mb-2">
+                {/* Avatar */}
+                {avatarUrl && !imgError ? (
                   <img
                     src={avatarUrl}
-                    alt={user?.name || "avatar"}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-white"
+                    alt="avatar"
+                    className="w-9 h-9 rounded-full object-cover border-2 border-white cursor-pointer"
+                    onClick={() => navigate("/dashboard")}
                     onError={() => setImgError(true)}
                   />
-                  <div className="text-white font-semibold">{user?.name || user?.email}</div>
+                ) : (
+                  <div
+                    onClick={() => navigate("/dashboard")}
+                    className="w-9 h-9 rounded-full bg-white text-blue-600 font-semibold flex items-center justify-center cursor-pointer"
+                  >
+                    {initials}
+                  </div>
+                )}
+
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-500 px-3 py-1 rounded-md hover:bg-red-600 transition"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="hover:text-gray-200">
+                  Login
+                </Link>
+                <Link
+                  to="/signUp"
+                  className="bg-white text-blue-600 px-4 py-1.5 rounded-md font-semibold hover:bg-gray-100 transition"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden"
+            onClick={() => setIsOpen(true)}
+            aria-label="Open Menu"
+          >
+            <Menu size={26} />
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Slide Menu */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          
+          {/* Overlay */}
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setIsOpen(false)}
+          />
+
+          {/* Drawer */}
+          <div className="absolute top-0 right-0 h-full w-4/5 max-w-sm bg-blue-700 shadow-lg p-5 flex flex-col">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold">Menu</h2>
+              <button onClick={() => setIsOpen(false)}>
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* User Info */}
+            {isAuthenticated && user && (
+              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-blue-500">
+                {avatarUrl && !imgError ? (
+                  <img
+                    src={avatarUrl}
+                    className="w-12 h-12 rounded-full border-2 border-white"
+                    onError={() => setImgError(true)}
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-white text-blue-600 font-semibold flex items-center justify-center">
+                    {initials}
+                  </div>
+                )}
+                <div>
+                  <div className="font-semibold">
+                    {user.name || "User"}
+                  </div>
+                  <div className="text-sm text-blue-200">
+                    {user.email}
+                  </div>
                 </div>
-              ) : user ? (
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 rounded-full bg-white text-blue-600 font-semibold flex items-center justify-center">{(user.name || user.username || user.email || "").toString().slice(0,1).toUpperCase()}</div>
-                  <div className="text-white font-semibold">{user?.name || user?.email}</div>
-                </div>
-              ) : null}
-              <Link
-                to="/dashboard"
-                onClick={() => setIsOpen(false)}
-                className="hover:text-gray-200"
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/income"
-                onClick={() => setIsOpen(false)}
-                className="hover:text-gray-200"
-              >
-                Income
-              </Link>
-              <Link
-                to="/expense"
-                onClick={() => setIsOpen(false)}
-                className="hover:text-gray-200"
-              >
-                Expense
-              </Link>
+              </div>
+            )}
+
+            {/* Links */}
+            <div className="flex flex-col gap-4 text-base">
+              {isAuthenticated ? (
+                <>
+                  <Link onClick={() => setIsOpen(false)} to="/dashboard">
+                    Dashboard
+                  </Link>
+                  <Link onClick={() => setIsOpen(false)} to="/income">
+                    Income
+                  </Link>
+                  <Link onClick={() => setIsOpen(false)} to="/expense">
+                    Expense
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link onClick={() => setIsOpen(false)} to="/login">
+                    Login
+                  </Link>
+                  <Link
+                    onClick={() => setIsOpen(false)}
+                    to="/signUp"
+                    className="bg-white text-blue-600 py-2 rounded-md text-center font-semibold"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* Spacer */}
+            <div className="flex-grow" />
+
+            {/* Logout */}
+            {isAuthenticated && (
               <button
-                onClick={() => {
-                  setIsOpen(false);
-                  handleLogout();
-                }}
-                className="bg-red-500 px-3 py-1 rounded-md hover:bg-red-600 transition"
+                onClick={handleLogout}
+                className="bg-red-500 py-2 rounded-md hover:bg-red-600 transition"
               >
                 Logout
               </button>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                onClick={() => setIsOpen(false)}
-                className="hover:text-gray-200"
-              >
-                Login
-              </Link>
-              <Link
-                to="/signUp"
-                onClick={() => setIsOpen(false)}
-                className="hover:text-gray-200"
-              >
-                Sign Up
-              </Link>
-            </>
-          )}
+            )}
+          </div>
         </div>
       )}
-    </nav>
+
+      {/* Spacer for fixed navbar */}
+      <div className="h-16" />
+    </>
   );
 };
 
