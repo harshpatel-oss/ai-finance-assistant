@@ -55,6 +55,9 @@ const Navbar = () => {
                 <Link to="/expense" className="hover:text-gray-200">
                   Expense
                 </Link>
+                <Link to="/ai-review" className="hover:text-gray-200">
+                  AI Review
+                </Link>
 
                 {/* Avatar */}
                 {avatarUrl && !imgError ? (
@@ -165,6 +168,9 @@ const Navbar = () => {
                   </Link>
                   <Link onClick={() => setIsOpen(false)} to="/expense">
                     Expense
+                  </Link>
+                  <Link onClick={() => setIsOpen(false)} to="/ai-review">
+                    AI Review
                   </Link>
                 </>
               ) : (

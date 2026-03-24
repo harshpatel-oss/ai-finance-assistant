@@ -5,6 +5,7 @@ import SignUp from './Auth/signUp'
 import Income from './routes/Income'
 import Expense from './routes/Expense'
 import Home from './routes/Home'
+import AiReview from './routes/AiReview'
 import Navbar from './components/Navbar'
 import {
   BrowserRouter as Router,
@@ -40,6 +41,7 @@ function AppContent() {
         <Route path='/signUp' element={<SignUp />} />
         <Route path='/income' element={<Income />} />
         <Route path='/expense' element={<Expense />} />
+        <Route path="/ai-review" element={<AiReview />} />
         <Route path='/dashboard' element={<Home />} />
       </Routes>
     </div>
