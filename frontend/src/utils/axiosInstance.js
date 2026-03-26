@@ -1,42 +1,63 @@
-import axios from 'axios';
-
-import { BASE_URL } from './apiPaths';
+import axios from "axios";
+import { BASE_URL } from "./apiPaths";
 
 const axiosInstance = axios.create({
-    baseURL: BASE_URL,
-    timeout: 10000,
-    headers: {  
-        'Content-Type': 'application/json'
-    }
+  baseURL: BASE_URL,
+  timeout: 15000, // slightly increased
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-//Request interceptor to add the auth token to headers
+// ✅ Request interceptor (attach token)
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const accessToken = localStorage.getItem("accessToken");
 
-axiosInstance.interceptors.request.use(config => {
-    const accesstoken = localStorage.getItem('accessToken');
-   if (accesstoken) {
-       config.headers['Authorization'] = `Bearer ${accesstoken}`;
-   }
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+
     return config;
-}, (error) => {
-    return Promise.reject(error);
-});
+  },
+  (error) => Promise.reject(error)
+);
 
-//Response interceptor to handle responses globally
-axiosInstance.interceptors.response.use(response => {
-    return response;
-}, (error) => {
+// ✅ Response interceptor (NO redirect here)
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
     if (error.response) {
-        // Handle specific status codes
-        if (error.response.status === 401) {        
-            // Unauthorized access - possibly redirect to login
-            console.error("Unauthorized access - please log in again.");
-            window.location.href = '/login';
-        } else if (error.response.status === 500) {
-            console.error("Server error - please try again later.");
-        }   
-    }
-    return Promise.reject(error);
-});
+      const status = error.response.status;
 
-export {axiosInstance};
+      console.error("API ERROR:", {
+        status,
+        data: error.response.data,
+      });
+
+      // ❌ DO NOT redirect automatically
+      // Let frontend handle it
+
+      if (status === 401) {
+        // Token expired / not logged in
+        return Promise.reject({
+          type: "AUTH_ERROR",
+          message: "Unauthorized",
+          original: error,
+        });
+      }
+
+      if (status === 500) {
+        return Promise.reject({
+          type: "SERVER_ERROR",
+          message: "Server error",
+          original: error,
+        });
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export { axiosInstance };

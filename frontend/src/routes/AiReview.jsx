@@ -10,7 +10,7 @@ const AiReview = () => {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chat]);
+  }, [chat, loading]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -27,18 +27,35 @@ const AiReview = () => {
         query,
       });
 
-      const aiMsg = {
-        type: "ai",
-        text: res.data.response || "No response",
-      };
+      console.log("FULL RESPONSE:", res);
 
-      setChat((prev) => [...prev, aiMsg]);
+      const aiText =
+        res?.data?.response ||
+        res?.data?.text ||
+        "⚠️ Empty response from server";
 
-    } catch (err) {
       setChat((prev) => [
         ...prev,
-        { type: "ai", text: "Error fetching response" },
+        { type: "ai", text: aiText.trim() },
       ]);
+
+    } catch (err) {
+      console.error("ERROR:", err);
+
+      if (err?.type === "AUTH_ERROR" || err?.response?.status === 401) {
+        setChat((prev) => [
+          ...prev,
+          {
+            type: "ai",
+            text: "🔒 Login for personalized insights (general AI still works)",
+          },
+        ]);
+      } else {
+        setChat((prev) => [
+          ...prev,
+          { type: "ai", text: "⚠️ Failed to fetch response" },
+        ]);
+      }
     } finally {
       setLoading(false);
     }
@@ -52,23 +69,30 @@ const AiReview = () => {
         {chat.map((msg, i) => (
           <div
             key={i}
-            className={`flex ${msg.type === "user" ? "justify-end" : "justify-start"}`}
+            className={`flex ${
+              msg.type === "user" ? "justify-end" : "justify-start"
+            }`}
           >
             <div
-              className={`p-3 rounded max-w-[75%] whitespace-pre-wrap ${
+              className={`p-3 rounded-2xl max-w-[75%] text-sm shadow ${
                 msg.type === "user"
                   ? "bg-blue-500 text-white"
                   : "bg-white border"
               }`}
             >
-              {msg.text.split("\n").map((l, i) => (
-                <p key={i}>{l}</p>
-              ))}
+              <pre className="whitespace-pre-wrap font-sans">
+                {msg.text}
+              </pre>
             </div>
           </div>
         ))}
 
-        {loading && <p className="text-sm text-gray-500">Thinking...</p>}
+        {loading && (
+          <div className="text-sm text-gray-500 animate-pulse">
+            Thinking...
+          </div>
+        )}
+
         <div ref={endRef} />
       </div>
 
@@ -76,10 +100,13 @@ const AiReview = () => {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="flex-1 border p-2 rounded"
+          className="flex-1 border p-2 rounded-lg outline-none focus:ring-2 focus:ring-green-400"
           placeholder="Ask anything..."
         />
-        <button className="bg-green-500 text-white px-4 rounded">
+        <button
+          type="submit"
+          className="bg-green-500 hover:bg-green-600 text-white px-4 rounded-lg"
+        >
           Send
         </button>
       </form>

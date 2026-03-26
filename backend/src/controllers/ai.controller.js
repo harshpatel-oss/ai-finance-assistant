@@ -24,7 +24,7 @@ export const financeAssistantController = async (req, res) => {
 
     query = query.trim();
 
-    console.log("User ID:", userId);
+    // console.log("User ID:", userId);
 
     // 🔍 FETCH DATA (SAFE QUERY)
     const [expenses, incomes] = await Promise.all([
@@ -52,8 +52,8 @@ export const financeAssistantController = async (req, res) => {
     ]);
 
     // 🔍 DEBUG
-    console.log("Expenses from DB:", expenses.length);
-    console.log("Incomes from DB:", incomes.length);
+    // console.log("Expenses from DB:", expenses.length);
+    // console.log("Incomes from DB:", incomes.length);
 
     //  HANDLE NO DATA
     if (!expenses.length && !incomes.length) {
@@ -85,7 +85,7 @@ Then I can analyze your finances.
       })),
     };
 
-    console.log("Context sent to AI:", context);
+    // console.log("Context sent to AI:", context);
 
     // CALL AI (WITH FALLBACK)
     let aiResponse;
@@ -112,6 +112,7 @@ Then I can analyze your finances.
     }
 
     //  RESPONSE
+    console.log(aiResponse);
     return res.status(200).json({
       success: true,
       response: aiResponse,
