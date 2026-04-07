@@ -9,6 +9,10 @@ export const API_PATHS = {
         LOGOUT:"/api/v1/users/logout",
         GET_USER_INFO:"/api/v1/users/getUser"
     },
+    USER:{
+        GET_PROFILE:"/api/v1/users/profile",
+        UPDATE_PROFILE:"/api/v1/users/update-profile"
+    },
     DASHBOARD:{
         GET_DATA:"/api/v1/dashboard"
     },

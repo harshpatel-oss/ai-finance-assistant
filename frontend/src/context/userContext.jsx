@@ -4,7 +4,7 @@ export const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    // function to update user data
+    // function to update user data (e.g. after new signup or profile update)
     const updateUser = (userData) => {
         setUser(userData);
     }

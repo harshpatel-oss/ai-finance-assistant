@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { axiosInstance } from "../utils/axiosInstance.js";
 import { API_PATHS } from "../utils/apiPaths.js";
 import {
@@ -11,17 +11,24 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import toast from "react-hot-toast";
-import { Trash2, Download, Plus } from "lucide-react";
-import EmojiPicker from "emoji-picker-react"; // ⬅️ Added Emoji Picker
+import { Trash2, Download, Plus, TrendingUp, Filter, Search, Smile } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/Card";
+import { Button } from "../components/ui/Button";
+import { Input, Select } from "../components/ui/Input";
+import { Modal } from "../components/ui/Modal";
+import { useToast, ToastContainer } from "../components/ui/Toast";
+import { Loader, CardSkeleton } from "../components/ui/Loader";
+import { Badge } from "../components/ui/Badge";
+import EmojiPicker from 'emoji-picker-react';
 
 const Income = () => {
   const [incomes, setIncomes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [chartData, setChartData] = useState([]);
-
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterSource, setFilterSource] = useState("");
+  const { toasts, showToast } = useToast();
 
   const [formData, setFormData] = useState({
     source: "",
@@ -30,9 +37,29 @@ const Income = () => {
     icon: "💰",
   });
 
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const emojiPickerRef = useRef(null);
+
   useEffect(() => {
     fetchIncomes();
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
   const fetchIncomes = async () => {
     try {
@@ -43,7 +70,7 @@ const Income = () => {
       prepareChartData(incomeList);
     } catch (error) {
       console.error("Error fetching incomes:", error);
-      toast.error("Failed to fetch incomes");
+      showToast("Failed to fetch incomes", "error");
     } finally {
       setLoading(false);
     }
@@ -55,18 +82,15 @@ const Income = () => {
       const date = new Date(income.date).toLocaleDateString("en-IN", {
         day: "2-digit",
         month: "short",
-        year: "numeric",
       });
       if (!groupedByDate[date]) groupedByDate[date] = 0;
       groupedByDate[date] += income.amount;
     });
 
     const data = Object.entries(groupedByDate)
-      .map(([date, amount]) => ({
-        date,
-        amount,
-      }))
-      .sort((a, b) => new Date(a.date) - new Date(b.date));
+      .map(([date, amount]) => ({ date, amount }))
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .slice(-14);
 
     setChartData(data);
   };
@@ -79,23 +103,16 @@ const Income = () => {
     }));
   };
 
-  const onEmojiClick = (emojiData) => {
-    setFormData((prev) => ({
-      ...prev,
-      icon: emojiData.emoji,
-    }));
-    setShowEmojiPicker(false);
-  };
-
   const handleAddIncome = async (e) => {
     e.preventDefault();
 
     if (!formData.source || !formData.amount || !formData.date) {
-      toast.error("Please fill all fields");
+      showToast("Please fill all fields", "error");
       return;
     }
 
     try {
+      setSubmitLoading(true);
       await axiosInstance.post(API_PATHS.INCOME.ADD_INCOME, {
         source: formData.source,
         amount: parseFloat(formData.amount),
@@ -103,7 +120,7 @@ const Income = () => {
         icon: formData.icon,
       });
 
-      toast.success("Income added successfully");
+      showToast("Income added successfully!", "success");
       setFormData({
         source: "",
         amount: "",
@@ -114,7 +131,9 @@ const Income = () => {
       fetchIncomes();
     } catch (error) {
       console.error("Error adding income:", error);
-      toast.error(error.response?.data?.message || "Failed to add income");
+      showToast(error.response?.data?.message || "Failed to add income", "error");
+    } finally {
+      setSubmitLoading(false);
     }
   };
 
@@ -123,11 +142,11 @@ const Income = () => {
 
     try {
       await axiosInstance.delete(API_PATHS.INCOME.DELETE_INCOME(incomeId));
-      toast.success("Income deleted successfully");
+      showToast("Income deleted successfully", "success");
       fetchIncomes();
     } catch (error) {
       console.error("Error deleting income:", error);
-      toast.error("Failed to delete income");
+      showToast("Failed to delete income", "error");
     }
   };
 
@@ -141,243 +160,367 @@ const Income = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "incomes.xlsx");
+      link.setAttribute("download", `incomes-${new Date().toISOString().split('T')[0]}.xlsx`);
       document.body.appendChild(link);
       link.click();
-      link.parentElement.removeChild(link);
-      toast.success("Income Excel downloaded successfully");
+      link.parentNode.removeChild(link);
+      showToast("Income Excel downloaded successfully", "success");
     } catch (error) {
       console.error("Error downloading excel:", error);
-      toast.error("Failed to download excel");
+      showToast("Failed to download excel", "error");
     }
   };
 
   const totalIncome = incomes.reduce((sum, income) => sum + income.amount, 0);
+  const avgIncome = incomes.length > 0 ? totalIncome / incomes.length : 0;
+
+  // Filter incomes
+  const filteredIncomes = incomes.filter((income) => {
+    const matchesSearch =
+      income.source?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      income.amount?.toString().includes(searchTerm);
+    const matchesSource = !filterSource || income.source === filterSource;
+    return matchesSearch && matchesSource;
+  });
+
+  const sources = [...new Set(incomes.map((i) => i.source))];
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-gray-500">Loading...</p>
+      <div className="p-6 md:p-8 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          {Array(3).fill(0).map((_, i) => (
+            <CardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-green-50 to-gray-50">
+      <div className="p-6 md:p-8 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+            💵 Income
+          </h1>
+          <p className="text-gray-600 text-sm sm:text-base">Track and manage your income sources</p>
+        </div>
 
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">Income</h1>
-        <p className="text-gray-600">Track and manage all your income sources</p>
-      </div>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card hover className="border-2 border-green-100 bg-green-50">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 font-medium">Total Income</p>
+                  <p className="text-3xl font-bold text-green-600 mt-2">
+                    ₹{totalIncome.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    {incomes.length} sources
+                  </p>
+                </div>
+                <div className="p-3 bg-green-100 rounded-full">
+                  <TrendingUp size={28} className="text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-      <div className="bg-gradient-to-r from-green-400 to-green-600 text-white p-8 rounded-xl shadow-lg mb-8">
-        <h2 className="text-lg font-semibold opacity-90">Total Income</h2>
-        <p className="text-5xl font-bold mt-2">₹{totalIncome.toFixed(2)}</p>
-        <p className="text-sm opacity-75 mt-2">Across {incomes.length} transactions</p>
-      </div>
+          <Card hover>
+            <CardContent className="pt-6">
+              <div>
+                <p className="text-sm text-gray-600 font-medium">Average Income</p>
+                <p className="text-3xl font-bold text-emerald-600 mt-2">
+                  ₹{avgIncome.toFixed(0)}
+                </p>
+                <p className="text-xs text-gray-500 mt-2">Per source</p>
+              </div>
+            </CardContent>
+          </Card>
 
-      <div className="flex gap-4 mb-8">
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg shadow-md transition font-semibold"
+          <Card hover>
+            <CardContent className="pt-6">
+              <div>
+                <p className="text-sm text-gray-600 font-medium">This Month</p>
+                <p className="text-3xl font-bold text-lime-600 mt-2">
+                  {incomes.length}
+                </p>
+                <p className="text-xs text-gray-500 mt-2">Income entries</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-wrap gap-3 mb-8">
+          <Button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2"
+          >
+            <Plus size={20} />
+            Add Income
+          </Button>
+
+          <Button
+            onClick={handleDownloadExcel}
+            variant="secondary"
+            className="flex items-center gap-2"
+          >
+            <Download size={20} />
+            Download Excel
+          </Button>
+        </div>
+
+        {/* Add Income Modal */}
+        <Modal
+          isOpen={showForm}
+          onClose={() => setShowForm(false)}
+          title="Add New Income"
+          size="lg"
         >
-          <Plus size={20} />
-          Add Income
-        </button>
-
-        <button
-          onClick={handleDownloadExcel}
-          className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md transition font-semibold"
-        >
-          <Download size={20} />
-          Download Excel
-        </button>
-      </div>
-
-      {showForm && (
-        <div className="bg-white p-6 rounded-xl shadow-md mb-8">
-          <h2 className="text-2xl font-bold mb-4">Add New Income</h2>
-          <form onSubmit={handleAddIncome} className="grid grid-cols-1 md:grid-cols-5 gap-4">
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Source
-              </label>
-              <input
-                type="text"
+          <form onSubmit={handleAddIncome} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Source"
                 name="source"
                 value={formData.source}
                 onChange={handleFormChange}
                 placeholder="e.g., Salary, Freelance"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+                required
               />
-            </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Amount
-              </label>
-              <input
-                type="number"
+              <Input
+                label="Amount (₹)"
                 name="amount"
+                type="number"
+                step="0.01"
                 value={formData.amount}
                 onChange={handleFormChange}
-                placeholder="Enter amount"
-                step="0.01"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+                placeholder="0.00"
+                required
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Date
-              </label>
-              <input
-                type="date"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Date"
                 name="date"
+                type="date"
                 value={formData.date}
                 onChange={handleFormChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+                required
               />
-            </div>
 
-            {/* Emoji Picker Integration */}
-            <div className="relative">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Icon
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
+              <div className="relative">
+                <Input
+                  label="Icon"
                   name="icon"
                   value={formData.icon}
-                  readOnly
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-xl text-center cursor-pointer"
-                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  onChange={handleFormChange}
+                  placeholder="💰"
+                  maxLength="2"
                 />
                 <button
                   type="button"
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                  className="px-3 py-2 border text-xl bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+                  className="absolute right-3 top-9 p-1 hover:bg-gray-100 rounded-md transition-colors"
                 >
-                  🙂
+                  <Smile size={20} className="text-gray-500" />
                 </button>
+                {showEmojiPicker && (
+                  <div ref={emojiPickerRef} className="absolute top-full mt-2 z-50">
+                    <EmojiPicker
+                      onEmojiClick={(emojiData) => {
+                        setFormData(prev => ({ ...prev, icon: emojiData.emoji }));
+                        setShowEmojiPicker(false);
+                      }}
+                      theme="light"
+                      width={300}
+                      height={400}
+                    />
+                  </div>
+                )}
               </div>
-
-              {showEmojiPicker && (
-                <div className="absolute z-20 bg-white shadow-lg rounded-lg p-2 top-16 right-0">
-                  <EmojiPicker onEmojiClick={onEmojiClick} />
-                </div>
-              )}
             </div>
 
-            <div className="flex gap-2 items-end">
-              <button
-                type="submit"
-                className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition font-semibold"
-              >
-                Add
-              </button>
-              <button
+            <div className="flex gap-3 pt-4">
+              <Button type="submit" loading={submitLoading} size="full">
+                Add Income
+              </Button>
+              <Button
                 type="button"
+                variant="secondary"
+                size="full"
                 onClick={() => setShowForm(false)}
-                className="w-full bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition font-semibold"
               >
                 Cancel
-              </button>
+              </Button>
+            </div>
+          </form>
+        </Modal>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Bar Chart */}
+          <Card hover>
+            <CardHeader>
+              <CardTitle>Income Trend</CardTitle>
+              <CardDescription>Last 14 days</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <XAxis dataKey="date" stroke="#9ca3af" />
+                    <YAxis stroke="#9ca3af" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#f9fafb",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "8px",
+                      }}
+                      formatter={(value) => `₹${value.toFixed(2)}`}
+                    />
+                    <Bar
+                      dataKey="amount"
+                      fill="#22c55e"
+                      name="Income"
+                      radius={[8, 8, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-72 flex items-center justify-center text-gray-500">
+                  No data available
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Source Distribution */}
+          <Card hover>
+            <CardHeader>
+              <CardTitle>By Source</CardTitle>
+              <CardDescription>Income distribution</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {sources.length > 0 ? (
+                <div className="space-y-3">
+                  {sources.map((src) => {
+                    const srcTotal = incomes
+                      .filter((i) => i.source === src)
+                      .reduce((sum, i) => sum + i.amount, 0);
+                    const percentage = (srcTotal / totalIncome) * 100;
+
+                    return (
+                      <div key={src}>
+                        <div className="flex justify-between mb-1">
+                          <span className="text-sm font-medium text-gray-700">
+                            {src}
+                          </span>
+                          <span className="text-sm font-bold text-gray-900">
+                            ₹{srcTotal.toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-green-500 h-2 rounded-full transition-all"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-center text-gray-500 py-8">No data</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Incomes Table */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>All Income Entries</CardTitle>
+              <CardDescription>
+                Showing {filteredIncomes.length} of {incomes.length} entries
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {/* Search & Filter */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <Input
+                placeholder="Search by source or amount..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                containerClassName="w-full"
+              />
+              <Select
+                options={[
+                  { label: "All Sources", value: "" },
+                  ...sources.map((src) => ({ label: src, value: src })),
+                ]}
+                value={filterSource}
+                onChange={(e) => setFilterSource(e.target.value)}
+                containerClassName="w-full"
+              />
             </div>
 
-          </form>
-        </div>
-      )}
-
-      {/* Chart Section */}
-      <div className="bg-white p-6 rounded-xl shadow-md mb-8">
-        <h2 className="text-2xl font-bold mb-4">Daily Income Chart</h2>
-        {chartData.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No income data available</p>
-        ) : (
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip
-                formatter={(value) => `₹${value.toFixed(2)}`}
-                contentStyle={{
-                  backgroundColor: "#f3f4f6",
-                  border: "1px solid #e5e7eb",
-                  borderRadius: "8px",
-                }}
-              />
-              <Legend />
-              <Bar
-                dataKey="amount"
-                fill="#22c55e"
-                name="Income Amount"
-                radius={[8, 8, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </div>
-
-      {/* Income Transactions */}
-      <div className="bg-white p-6 rounded-xl shadow-md">
-        <h2 className="text-2xl font-bold mb-4">Income Transactions</h2>
-
-        {incomes.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No income transactions yet</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-100 border-b-2 border-gray-300">
-                <tr>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                    Icon
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                    Source
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                    Amount
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                    Date
-                  </th>
-                  <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {incomes.map((income) => (
-                  <tr key={income._id} className="border-b hover:bg-gray-50 transition">
-                    <td className="px-4 py-4 text-center text-2xl">{income.icon}</td>
-                    <td className="px-4 py-4 text-gray-800 font-semibold">{income.source}</td>
-                    <td className="px-4 py-4 text-green-600 font-bold">
-                      +₹{income.amount.toFixed(2)}
-                    </td>
-                    <td className="px-4 py-4 text-gray-600">
-                      {new Date(income.date).toLocaleDateString("en-IN")}
-                    </td>
-                    <td className="px-4 py-4 text-center">
-                      <button
+            {/* Incomes List */}
+            {filteredIncomes.length > 0 ? (
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {filteredIncomes.map((income) => (
+                  <div
+                    key={income._id}
+                    className="flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition-colors border border-transparent hover:border-gray-200"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="text-3xl">{income.icon}</div>
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          {income.source}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(income.date).toLocaleDateString("en-IN")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <p className="font-bold text-green-600 text-lg">
+                        +₹{income.amount.toLocaleString()}
+                      </p>
+                      <Button
+                        variant="danger"
+                        size="sm"
                         onClick={() => handleDeleteIncome(income._id)}
-                        className="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition font-semibold"
+                        className="flex items-center gap-2"
                       >
                         <Trash2 size={16} />
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
+                      </Button>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-500 mb-4">No income entries found</p>
+                <Button onClick={() => setShowForm(true)} size="sm">
+                  Add Your First Income
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
+
+      <ToastContainer toasts={toasts} />
     </div>
   );
 };

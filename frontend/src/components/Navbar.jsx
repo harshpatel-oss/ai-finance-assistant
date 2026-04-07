@@ -1,13 +1,16 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useContext, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, Moon, Sun } from "lucide-react";
+import { Button } from "./ui/Button";
+import { UserProfile } from "./ui";
 
-const Navbar = () => {
+const Navbar = ({ isDark = false, toggleDark = () => {} }) => {
   const navigate = useNavigate();
   const isAuthenticated = !!localStorage.getItem("accessToken");
 
   const [isOpen, setIsOpen] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   const user = useMemo(() => {
     try {
@@ -18,7 +21,6 @@ const Navbar = () => {
   }, [isAuthenticated]);
 
   const avatarUrl = user?.avatar?.url || user?.avatar || null;
-
   const initials =
     (user?.name || user?.username || user?.email || "")
       .charAt(0)
@@ -29,101 +31,138 @@ const Navbar = () => {
     navigate("/login");
   };
 
+  const navLinks = [
+    { path: "/dashboard", label: "Dashboard" },
+    { path: "/income", label: "Income" },
+    { path: "/expense", label: "Expense" },
+    { path: "/ai-review", label: "AI Review" }
+  ];
+
   return (
     <>
-      <nav className="bg-blue-600 text-white shadow-md fixed top-0 left-0 right-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          
+      <nav className={`fixed top-0 left-0 right-0 z-40 shadow-sm transition-colors ${
+        isDark ? "bg-gray-900 text-white" : "bg-white text-gray-900 border-b border-gray-100"
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           {/* Logo */}
           <div
-            className="text-lg sm:text-xl font-bold cursor-pointer flex items-center gap-2"
+            className="text-lg font-bold cursor-pointer flex items-center gap-2"
             onClick={() => navigate("/dashboard")}
           >
-            💰 AI Finance Assistant
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white">
+              💰
+            </div>
+            <span className="hidden md:block">AI Finance</span>
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-8">
             {isAuthenticated ? (
               <>
-                <Link to="/dashboard" className="hover:text-gray-200">
-                  Dashboard
-                </Link>
-                <Link to="/income" className="hover:text-gray-200">
-                  Income
-                </Link>
-                <Link to="/expense" className="hover:text-gray-200">
-                  Expense
-                </Link>
-                <Link to="/ai-review" className="hover:text-gray-200">
-                  AI Review
-                </Link>
-
-                {/* Avatar */}
-                {avatarUrl && !imgError ? (
-                  <img
-                    src={avatarUrl}
-                    alt="avatar"
-                    className="w-9 h-9 rounded-full object-cover border-2 border-white cursor-pointer"
-                    onClick={() => navigate("/dashboard")}
-                    onError={() => setImgError(true)}
-                  />
-                ) : (
-                  <div
-                    onClick={() => navigate("/dashboard")}
-                    className="w-9 h-9 rounded-full bg-white text-blue-600 font-semibold flex items-center justify-center cursor-pointer"
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`text-sm font-medium transition-colors ${
+                      isDark
+                        ? "hover:text-blue-400"
+                        : "hover:text-blue-600"
+                    }`}
                   >
-                    {initials}
-                  </div>
-                )}
-
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-500 px-3 py-1 rounded-md hover:bg-red-600 transition"
-                >
-                  Logout
-                </button>
+                    {link.label}
+                  </Link>
+                ))}
               </>
-            ) : (
-              <>
-                <Link to="/login" className="hover:text-gray-200">
-                  Login
-                </Link>
-                <Link
-                  to="/signUp"
-                  className="bg-white text-blue-600 px-4 py-1.5 rounded-md font-semibold hover:bg-gray-100 transition"
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
+            ) : null}
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden"
-            onClick={() => setIsOpen(true)}
-            aria-label="Open Menu"
-          >
-            <Menu size={26} />
-          </button>
+          {/* Right Section */}
+          <div className="flex items-center gap-4">
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleDark}
+              className={`p-2 rounded-lg transition-colors ${
+                isDark
+                  ? "bg-gray-800 hover:bg-gray-700"
+                  : "bg-gray-100 hover:bg-gray-200"
+              }`}
+            >
+              {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+
+            {/* Desktop Buttons */}
+            <div className="hidden md:flex items-center gap-3">
+              {isAuthenticated ? (
+                <>
+                  {/* Avatar */}
+                  {avatarUrl && !imgError ? (
+                    <img
+                      src={avatarUrl}
+                      alt="avatar"
+                      className="w-9 h-9 rounded-full object-cover border-2 border-blue-500 cursor-pointer"
+                      onClick={() => setShowProfile(true)}
+                      onError={() => setImgError(true)}
+                    />
+                  ) : (
+                    <div
+                      onClick={() => setShowProfile(true)}
+                      className={`w-9 h-9 rounded-full flex items-center justify-center cursor-pointer text-sm font-semibold border-2 border-blue-500 ${
+                        isDark
+                          ? "bg-gray-800 text-white"
+                          : "bg-gray-100 text-gray-900"
+                      }`}
+                    >
+                      {initials}
+                    </div>
+                  )}
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleLogout}
+                    className="flex items-center gap-2"
+                  >
+                    <LogOut size={18} />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/login">
+                    <Button variant="outline" size="sm">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link to="/signUp">
+                    <Button size="sm">Sign Up</Button>
+                  </Link>
+                </>
+              )}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              className="md:hidden"
+              onClick={() => setIsOpen(true)}
+              aria-label="Open Menu"
+            >
+              <Menu size={24} />
+            </button>
+          </div>
         </div>
       </nav>
 
-      {/* Mobile Slide Menu */}
+      {/* Mobile Drawer */}
       {isOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          
-          {/* Overlay */}
           <div
             className="absolute inset-0 bg-black/40"
             onClick={() => setIsOpen(false)}
           />
 
-          {/* Drawer */}
-          <div className="absolute top-0 right-0 h-full w-4/5 max-w-sm bg-blue-700 shadow-lg p-5 flex flex-col">
-            
-            {/* Header */}
+          <div className={`absolute top-0 right-0 h-full w-4/5 max-w-sm ${
+            isDark ? "bg-gray-900" : "bg-white"
+          } shadow-lg p-5 flex flex-col`}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold">Menu</h2>
               <button onClick={() => setIsOpen(false)}>
@@ -131,81 +170,50 @@ const Navbar = () => {
               </button>
             </div>
 
-            {/* User Info */}
-            {isAuthenticated && user && (
-              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-blue-500">
-                {avatarUrl && !imgError ? (
-                  <img
-                    src={avatarUrl}
-                    className="w-12 h-12 rounded-full border-2 border-white"
-                    onError={() => setImgError(true)}
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-white text-blue-600 font-semibold flex items-center justify-center">
-                    {initials}
-                  </div>
-                )}
-                <div>
-                  <div className="font-semibold">
-                    {user.name || "User"}
-                  </div>
-                  <div className="text-sm text-blue-200">
-                    {user.email}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Links */}
-            <div className="flex flex-col gap-4 text-base">
+            {/* Mobile Links */}
+            <div className="flex flex-col gap-4 mb-6">
               {isAuthenticated ? (
                 <>
-                  <Link onClick={() => setIsOpen(false)} to="/dashboard">
-                    Dashboard
-                  </Link>
-                  <Link onClick={() => setIsOpen(false)} to="/income">
-                    Income
-                  </Link>
-                  <Link onClick={() => setIsOpen(false)} to="/expense">
-                    Expense
-                  </Link>
-                  <Link onClick={() => setIsOpen(false)} to="/ai-review">
-                    AI Review
-                  </Link>
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.path}
+                      to={link.path}
+                      onClick={() => setIsOpen(false)}
+                      className="text-base font-medium hover:text-blue-600"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
                 </>
-              ) : (
-                <>
-                  <Link onClick={() => setIsOpen(false)} to="/login">
-                    Login
-                  </Link>
-                  <Link
-                    onClick={() => setIsOpen(false)}
-                    to="/signUp"
-                    className="bg-white text-blue-600 py-2 rounded-md text-center font-semibold"
-                  >
-                    Sign Up
-                  </Link>
-                </>
-              )}
+              ) : null}
             </div>
 
-            {/* Spacer */}
             <div className="flex-grow" />
 
-            {/* Logout */}
+            {/* Mobile Logout */}
             {isAuthenticated && (
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 py-2 rounded-md hover:bg-red-600 transition"
+              <Button
+                onClick={() => {
+                  handleLogout();
+                  setIsOpen(false);
+                }}
+                variant="danger"
+                size="full"
               >
                 Logout
-              </button>
+              </Button>
             )}
           </div>
         </div>
       )}
 
-      {/* Spacer for fixed navbar */}
+      {/* User Profile Modal */}
+      <UserProfile 
+        isOpen={showProfile} 
+        onClose={() => setShowProfile(false)} 
+      />
+
+      {/* Spacer */}
       <div className="h-16" />
     </>
   );

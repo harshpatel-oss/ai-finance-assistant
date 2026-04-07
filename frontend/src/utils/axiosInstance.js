@@ -23,7 +23,7 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ Response interceptor (NO redirect here)
+// ✅ Response interceptor (handle 401 by clearing token and redirecting)
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -35,14 +35,14 @@ axiosInstance.interceptors.response.use(
         data: error.response.data,
       });
 
-      // ❌ DO NOT redirect automatically
-      // Let frontend handle it
-
       if (status === 401) {
-        // Token expired / not logged in
+        // Token expired / not logged in - clear storage and redirect
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
         return Promise.reject({
           type: "AUTH_ERROR",
-          message: "Unauthorized",
+          message: "Unauthorized - Session expired",
           original: error,
         });
       }
