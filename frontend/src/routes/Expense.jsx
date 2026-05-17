@@ -80,20 +80,28 @@ const Expense = () => {
   };
 
   const prepareChartData = (expenseList) => {
-    const groupedByDate = {};
+    const amountsByDate = {};
+    const today = new Date();
+    const endDate = new Date(today.toISOString().split("T")[0]);
+    const startDate = new Date(endDate);
+    startDate.setDate(endDate.getDate() - 364); // last 365 days inclusive
+
     expenseList.forEach((expense) => {
-      const date = new Date(expense.date).toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-      });
-      if (!groupedByDate[date]) groupedByDate[date] = 0;
-      groupedByDate[date] += expense.amount;
+      const dateObj = new Date(expense.date);
+      const isoDate = dateObj.toISOString().split("T")[0];
+      const d = new Date(isoDate);
+      if (d >= startDate && d <= endDate) {
+        amountsByDate[isoDate] = (amountsByDate[isoDate] || 0) + expense.amount;
+      }
     });
 
-    const data = Object.entries(groupedByDate)
-      .map(([date, amount]) => ({ date, amount }))
-      .sort((a, b) => new Date(a.date) - new Date(b.date))
-      .slice(-14);
+    const data = Object.entries(amountsByDate)
+      .map(([isoDate, amount]) => ({
+        date: new Date(isoDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }),
+        amount,
+        sortDate: new Date(isoDate),
+      }))
+      .sort((a, b) => a.sortDate - b.sortDate);
 
     setChartData(data);
   };
@@ -246,7 +254,7 @@ const Expense = () => {
           <Card hover>
             <CardContent className="pt-6">
               <div>
-                <p className="text-sm text-gray-600 font-medium">This Month</p>
+                <p className="text-sm text-gray-600 font-medium">Total</p>
                 <p className="text-3xl font-bold text-orange-600 mt-2">
                   {expenses.length}
                 </p>
@@ -370,7 +378,7 @@ const Expense = () => {
           <Card hover>
             <CardHeader>
               <CardTitle>Expense Trend</CardTitle>
-              <CardDescription>Last 14 days</CardDescription>
+              <CardDescription>Last 1 year</CardDescription>
             </CardHeader>
             <CardContent>
               {chartData.length > 0 ? (

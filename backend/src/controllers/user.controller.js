@@ -63,8 +63,11 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(500 , 'Something went erong while registering user');
          }
 
+         // Generate tokens after user creation
+         const { accessToken, refreshToken } = await generateAccessAndRefreshToken(createdUser._id);
+
          return res.status(201).json(// yaha 201 status code dena jaruri nahi hai but best practice hai
-            new ApiResponse(201 , createdUser , 'User registered successfully') //status code ,data , message
+            new ApiResponse(201 , { user: createdUser, accessToken, refreshToken } , 'User registered successfully') //status code ,data , message
          );
 
 

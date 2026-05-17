@@ -27,8 +27,9 @@ const UserProfile = ({ isOpen, onClose }) => {
   const fetchUserData = async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get(API_PATHS.USER.GET_PROFILE);
+      const res = await axiosInstance.get(API_PATHS.USER.GET_USER_INFO);
       const userData = res.data?.data;
+      console.log(userData)
       setUser(userData);
       setFormData({
         name: userData?.name || "",

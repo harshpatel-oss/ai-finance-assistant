@@ -32,7 +32,7 @@ function Login() {
       return;
     }
 
-    // tore tokens
+    // Store tokens
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
     localStorage.setItem("user", JSON.stringify(user));
@@ -78,7 +78,7 @@ function Login() {
 
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 cursor-pointer"
         >
           Login
         </button>

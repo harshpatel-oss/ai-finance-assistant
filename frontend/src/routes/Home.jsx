@@ -134,17 +134,23 @@ function Home() {
     : 0;
 
   // Prepare chart data
-  const incomeTrendData = last60DaysIncome?.transactions?.slice(-30)?.map(tx => ({
-    date: new Date(tx.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
-    value: tx.amount,
-    fullDate: tx.date
-  })) || [];
+  const incomeTrendData = (last60DaysIncome?.transactions || [])
+    .slice()
+    .reverse()
+    .map((tx) => ({
+      date: new Date(tx.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+      value: tx.amount,
+      fullDate: tx.date,
+    }));
 
-  const expenseTrendData = last30DaysExpenses?.transactions?.map(tx => ({
-    date: new Date(tx.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
-    value: tx.amount,
-    fullDate: tx.date
-  })) || [];
+  const expenseTrendData = (last30DaysExpenses?.transactions || [])
+    .slice()
+    .reverse()
+    .map((tx) => ({
+      date: new Date(tx.date).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+      value: tx.amount,
+      fullDate: tx.date,
+    }));
 
   const pieData = [
     { name: "Income", value: totalIncome },
@@ -235,7 +241,7 @@ function Home() {
                 <TrendingUp size={20} className="text-green-600" />
                 Income Trend
               </CardTitle>
-              <CardDescription>Last 30 days</CardDescription>
+              <CardDescription>Last 60 days</CardDescription>
             </CardHeader>
             <CardContent>
               {incomeTrendData.length > 0 ? (
@@ -363,24 +369,24 @@ function Home() {
             <Card variant="gradient">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 font-medium">Monthly Income</p>
+                  <p className="text-sm text-gray-600 font-medium">Last 60 Days Income</p>
                   <p className="text-2xl font-bold text-gray-900 mt-2">
                     ₹{last60DaysIncome?.total?.toLocaleString() || "0"}
                   </p>
                 </div>
-                <Badge variant="success">This Month</Badge>
+                <Badge variant="success">Last 60 days</Badge>
               </div>
             </Card>
 
             <Card variant="gradient">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 font-medium">Monthly Expenses</p>
+                  <p className="text-sm text-gray-600 font-medium">Last 30 Days Expenses</p>
                   <p className="text-2xl font-bold text-gray-900 mt-2">
                     ₹{last30DaysExpenses?.total?.toLocaleString() || "0"}
                   </p>
                 </div>
-                <Badge variant="warning">This Month</Badge>
+                <Badge variant="warning">Last 30 days</Badge>
               </div>
             </Card>
 
