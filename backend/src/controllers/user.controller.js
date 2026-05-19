@@ -21,12 +21,12 @@ const generateAccessAndRefreshToken = async (userId) =>{
 
 const registerUser = asyncHandler(async (req, res) => {
     //steps to register a user ->
-      const { email ,username , password} = req.body;
+      const { email ,username , password, fullName } = req.body;
 
       if(
-            [ email ,username , password].some((field)=>field?.trim() === '')
+            [ email ,username , password, fullName].some((field)=>field?.trim() === '')
         ){
-             throw new ApiError(400 , 'username and email is required');
+             throw new ApiError(400 , 'username, email, password, and full name are required');
         }
 
       const existedUser = await User.findOne({
@@ -52,6 +52,7 @@ const registerUser = asyncHandler(async (req, res) => {
             avatar: avatar.url,
             email,
             username : username.toLowerCase(),
+            fullName,
             password
         });
 
@@ -212,4 +213,63 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     );
 });
 
-export {registerUser , loginUser , logoutUser , refreshAccessToken , getCurrentUser};
+const updateProfile = asyncHandler(async (req, res) => {
+    //update profile logic
+    const { username, email, fullName } = req.body;
+    const updatedData = {};
+
+    if(fullName?.trim() === ''){
+        throw new ApiError(400 , "Full name cannot be empty");
+    }
+    if(username?.trim() === ''){
+        throw new ApiError(400 , "Username cannot be empty");
+    }
+    if(email?.trim() === ''){
+        throw new ApiError(400 , "Email cannot be empty");
+    }
+
+    const existingUser = await User.findOne({
+        $or: [
+            { username: username.toLowerCase() },
+            { email }
+        ],
+        _id: { $ne: req.user._id }
+    });
+
+    if (existingUser) {
+        throw new ApiError(409, 'Username or email already in use by another account');
+    }
+
+    const avatarLocalPath = req.file?.path;
+    
+    if(avatarLocalPath){
+        const avatar = await uploadOnCloudinary(avatarLocalPath);
+        if(!avatar){
+            throw new ApiError(500 , 'Avatar upload failed, please try again');
+        }
+        updatedData.avatar = avatar.url;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(req.user._id,
+        {
+            $set:{
+                username:username.toLowerCase(),
+                email:email,  
+                fullName:fullName,
+                ...updatedData
+            }   
+        }
+    ,{
+        new:true
+    }).select("-password -refreshToken")
+    
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200 , updatedUser , "Profile updated successfully")
+    );
+
+
+})
+
+export {registerUser , loginUser , logoutUser , refreshAccessToken , getCurrentUser , updateProfile};

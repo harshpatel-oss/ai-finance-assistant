@@ -11,10 +11,12 @@ const UserProfile = ({ isOpen, onClose }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState("");
   const [formData, setFormData] = useState({
-    name: "",
+    fullName: "",
     email: "",
     username: "",
+    avatar: null,
   });
   const { showToast } = useToast();
 
@@ -27,14 +29,15 @@ const UserProfile = ({ isOpen, onClose }) => {
   const fetchUserData = async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get(API_PATHS.USER.GET_USER_INFO);
+      const res = await axiosInstance.get(API_PATHS.USER.GET_PROFILE);
       const userData = res.data?.data;
-      console.log(userData)
       setUser(userData);
+      setAvatarPreview(userData?.avatar || "");
       setFormData({
-        name: userData?.name || "",
+        fullName: userData?.fullName || "",
         email: userData?.email || "",
         username: userData?.username || "",
+        avatar: null,
       });
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -47,11 +50,25 @@ const UserProfile = ({ isOpen, onClose }) => {
   const handleUpdate = async () => {
     try {
       setUpdating(true);
-      await axiosInstance.put(API_PATHS.USER.UPDATE_PROFILE, formData);
+      const data = new FormData();
+      data.append("fullName", formData.fullName);
+      data.append("email", formData.email);
+      data.append("username", formData.username);
+      if (formData.avatar) {
+        data.append("avatar", formData.avatar);
+      }
+
+      const res = await axiosInstance.put(API_PATHS.USER.UPDATE_PROFILE, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      const updatedUser = res.data?.data;
+      setAvatarPreview(updatedUser?.avatar || avatarPreview);
       showToast("Profile updated successfully", "success");
-      // Update local storage
-      const updatedUser = { ...user, ...formData };
       localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
       onClose();
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -62,6 +79,9 @@ const UserProfile = ({ isOpen, onClose }) => {
   };
 
   const handleInputChange = (field, value) => {
+    if (field === "avatar") {
+      setAvatarPreview(value ? URL.createObjectURL(value) : user?.avatar || "");
+    }
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -74,23 +94,33 @@ const UserProfile = ({ isOpen, onClose }) => {
           <Loader />
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6 sm:space-y-8 bg-white rounded-3xl p-5 sm:p-6 shadow-[0_10px_40px_rgba(15,23,42,0.08)]">
           {/* User Avatar and Basic Info */}
-          <div className="text-center">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xl sm:text-2xl font-bold">
-              {(user?.name || user?.username || user?.email || "").charAt(0).toUpperCase()}
+          <div className="text-center px-3">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border border-gray-200 shadow-sm">
+              {avatarPreview ? (
+                <img
+                  src={avatarPreview}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-semibold">
+                  {(user?.fullName || user?.username || user?.email || "").charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
-            <h3 className="text-base sm:text-lg font-semibold">{user?.name || user?.username}</h3>
+            <h3 className="text-base sm:text-lg font-semibold">{user?.fullName || user?.username}</h3>
             <p className="text-sm text-gray-600">{user?.email}</p>
           </div>
 
           {/* Update Form */}
           <div className="space-y-4">
             <Input
-              label="Name"
-              value={formData.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
-              placeholder="Enter your name"
+              label="Full Name"
+              value={formData.fullName}
+              onChange={(e) => handleInputChange("fullName", e.target.value)}
+              placeholder="Enter your full name"
             />
             <Input
               label="Username"
@@ -105,6 +135,15 @@ const UserProfile = ({ isOpen, onClose }) => {
               onChange={(e) => handleInputChange("email", e.target.value)}
               placeholder="Enter email"
             />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Avatar</label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleInputChange("avatar", e.target.files?.[0] ?? null)}
+                className="w-full rounded border border-gray-300 px-3 py-2"
+              />
+            </div>
           </div>
 
           {/* Action Buttons */}

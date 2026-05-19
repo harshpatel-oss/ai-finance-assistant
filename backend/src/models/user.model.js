@@ -20,6 +20,10 @@ const userSchema = new Schema({
         type:String, //cloudinary url
         required:true
     },
+    fullName:{
+        type:String,
+        required:true
+    },
       refreshToken:{
         type:String 
     },

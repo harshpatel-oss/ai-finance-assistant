@@ -3,15 +3,18 @@ import { BASE_URL } from "./apiPaths";
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
-  timeout: 15000, // slightly increased
+  timeout: 15000,
+  withCredentials: true, // IMPORTANT
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// ✅ Request interceptor (attach token)
+
+// REQUEST INTERCEPTOR
 axiosInstance.interceptors.request.use(
   (config) => {
+
     const accessToken = localStorage.getItem("accessToken");
 
     if (accessToken) {
@@ -23,36 +26,64 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ Response interceptor (handle 401 by clearing token and redirecting)
+
+// RESPONSE INTERCEPTOR
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response) {
-      const status = error.response.status;
 
-      console.error("API ERROR:", {
-        status,
-        data: error.response.data,
-      });
+  async (error) => {
 
-      if (status === 401) {
-        // Token expired / not logged in - clear storage and redirect
+    const originalRequest = error.config;
+
+    // access token expired
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
+
+      originalRequest._retry = true;
+
+      try {
+
+        // refresh token API call
+        const response = await axios.post(
+          `${BASE_URL}/api/v1/users/refresh-token`,
+          {},
+          {
+            withCredentials: true,
+          }
+        );
+
+        // save new access token and refresh token
+        const { accessToken: newAccessToken, newRefreshToken } = response.data.data;
+
+        localStorage.setItem(
+          "accessToken",
+          newAccessToken
+        );
+
+        if (newRefreshToken) {
+          localStorage.setItem(
+            "refreshToken",
+            newRefreshToken
+          );
+        }
+
+        // retry original request
+        originalRequest.headers.Authorization =
+          `Bearer ${newAccessToken}`;
+
+        return axiosInstance(originalRequest);
+
+      } catch (refreshError) {
+
+        // refresh token also expired
         localStorage.removeItem("accessToken");
         localStorage.removeItem("user");
-        window.location.href = "/login";
-        return Promise.reject({
-          type: "AUTH_ERROR",
-          message: "Unauthorized - Session expired",
-          original: error,
-        });
-      }
 
-      if (status === 500) {
-        return Promise.reject({
-          type: "SERVER_ERROR",
-          message: "Server error",
-          original: error,
-        });
+        window.location.href = "/login";
+
+        return Promise.reject(refreshError);
       }
     }
 

@@ -77,7 +77,7 @@ const Navbar = ({ isDark = false, toggleDark = () => {} }) => {
           </div>
 
           {/* Right Section */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {/* Dark Mode Toggle */}
             <button
               onClick={toggleDark}
@@ -89,6 +89,33 @@ const Navbar = ({ isDark = false, toggleDark = () => {} }) => {
             >
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
+
+            {isAuthenticated && (
+              <button
+                onClick={() => setShowProfile(true)}
+                className="md:hidden p-1 rounded-full border border-gray-200 hover:bg-gray-100 transition"
+                aria-label="Open Profile"
+              >
+                {avatarUrl && !imgError ? (
+                  <img
+                    src={avatarUrl}
+                    alt="avatar"
+                    className="w-9 h-9 rounded-full object-cover"
+                    onError={() => setImgError(true)}
+                  />
+                ) : (
+                  <div
+                    className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold ${
+                      isDark
+                        ? "bg-gray-800 text-white"
+                        : "bg-gray-100 text-gray-900"
+                    }`}
+                  >
+                    {initials}
+                  </div>
+                )}
+              </button>
+            )}
 
             {/* Desktop Buttons */}
             <div className="hidden md:flex items-center gap-3">
@@ -169,6 +196,38 @@ const Navbar = ({ isDark = false, toggleDark = () => {} }) => {
                 <X size={24} />
               </button>
             </div>
+
+            {isAuthenticated && (
+              <div className="mb-6 rounded-3xl border border-gray-200 p-4 bg-white shadow-sm">
+                <div className="flex items-center gap-3">
+                  {avatarUrl && !imgError ? (
+                    <img
+                      src={avatarUrl}
+                      alt="avatar"
+                      className="w-12 h-12 rounded-full object-cover"
+                      onError={() => setImgError(true)}
+                    />
+                  ) : (
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold ${isDark ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-900"}`}>
+                      {initials}
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-base font-semibold">{user?.fullName || user?.username}</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowProfile(true);
+                        setIsOpen(false);
+                      }}
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      View Profile
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Mobile Links */}
             <div className="flex flex-col gap-4 mb-6">

@@ -5,6 +5,7 @@ import { axiosInstance } from "../utils/axiosInstance";
 import { UserContext } from "../context/userContext.jsx";
 
 function SignUp() {
+  const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +26,7 @@ function SignUp() {
   const handleSignUp = async (e) => {
     e.preventDefault();
 
-    if (!username || !email || !password) {
+    if (!fullName || !username || !email || !password) {
       alert("Please fill in all fields.");
       return;
     }
@@ -38,6 +39,7 @@ function SignUp() {
         return;
       }
       const formData = new FormData();
+      formData.append("fullName", fullName);
       formData.append("username", username);
       formData.append("email", email);
       formData.append("password", password);
@@ -104,6 +106,13 @@ function SignUp() {
           <input
             type="text"
             placeholder="enter your full name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="w-full p-2 border rounded mb-3"
+          />
+          <input
+            type="text"
+            placeholder="enter your username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="w-full p-2 border rounded mb-3"

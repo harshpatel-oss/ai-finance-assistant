@@ -7,6 +7,7 @@ export const API_PATHS = {
         LOGIN:"/api/v1/users/login",
         REGISTER:"/api/v1/users/register",
         LOGOUT:"/api/v1/users/logout",
+        REFRESH_TOKEN:"/api/v1/users/refresh-token",
         GET_USER_INFO:"/api/v1/users/current-user"
     },
     USER:{

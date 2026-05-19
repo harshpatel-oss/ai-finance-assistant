@@ -5,7 +5,8 @@ import
     loginUser,
     logoutUser,
     refreshAccessToken,
-    getCurrentUser
+    getCurrentUser,
+    updateProfile
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import {verifyJWT} from "../middlewares/auth.middleware.js";
@@ -20,4 +21,6 @@ router.route('/login').post(loginUser)
 router.route("/logout").post(verifyJWT,logoutUser) //logoutUser
 router.route("/refresh-token").post(refreshAccessToken) //refresh token logic 
 router.route("/current-user").get(verifyJWT, getCurrentUser); //get current user details
+router.route("/profile").get(verifyJWT, getCurrentUser); //alias route for profile fetch
+router.route("/update-profile").put(verifyJWT, upload.single('avatar'), updateProfile);
 export default router;
