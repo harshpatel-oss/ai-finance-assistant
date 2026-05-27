@@ -42,22 +42,22 @@ export const StatCard = ({
   return (
     <Card hover={true} className="flex flex-col">
       <div className="flex items-start justify-between mb-4">
-        <div className="p-3 bg-blue-100 rounded-full">
+        <div className="p-3 bg-surface-soft dark:bg-slate-800 rounded-full">
           <Icon size={24} className="text-blue-600" />
         </div>
         {trend && (
           <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
             isPositive 
-              ? "bg-green-100 text-green-700" 
-              : "bg-red-100 text-red-700"
+              ? "bg-green-100/90 text-green-700 dark:bg-emerald-900 dark:text-emerald-300" 
+              : "bg-red-100/90 text-red-700 dark:bg-red-900 dark:text-red-300"
           }`}>
             {isPositive ? "↑" : "↓"} {trend}%
           </span>
         )}
       </div>
 
-      <p className="text-gray-600 text-sm font-medium mb-2">{label}</p>
-      <p className="text-2xl font-bold text-gray-900 mb-3">
+      <p className="text-muted text-sm font-medium mb-2">{label}</p>
+      <p className="text-2xl font-bold text-text mb-3">
         <AnimatedCounter 
           value={parseFloat(value) || 0} 
           prefix={prefix}

@@ -1,91 +1,247 @@
 @import url("https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap");
 @import "tailwindcss";
 
-
-
-@theme {
+:root {
   --font-sans: "Mona Sans", ui-sans-serif, system-ui, sans-serif,
   "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --color-dark-200: #475467;
-  --color-light-blue-100: #c1d3f81a;
-  --color-light-blue-200: #a7bff14d;
+  color-scheme: light;
+  --bg: 248 250 252;
+  --surface: 255 255 255;
+  --surface-soft: 247 250 255;
+  --surface-strong: 241 245 249;
+  --border: 226 232 240;
+  --text: 15 23 42;
+  --text-muted: 100 116 139;
+  --primary: 59 130 246;
+  --success: 16 185 129;
+  --danger: 239 68 68;
+  --warning: 234 179 8;
+  --shadow: 15 23 42;
+}
 
-  --color-badge-green: #d5faf1;
-  --color-badge-red: #f9e3e2;
-  --color-badge-yellow: #fceed8;
-
-  --color-badge-green-text: #254d4a;
-  --color-badge-red-text: #752522;
-  --color-badge-yellow-text: #73321b;
+.dark {
+  color-scheme: dark;
+  --bg: 15 23 42;
+  --surface: 17 24 39;
+  --surface-soft: 30 41 59;
+  --surface-strong: 30 41 59;
+  --border: 51 65 85;
+  --text: 226 232 240;
+  --text-muted: 148 163 184;
+  --primary: 96 165 250;
+  --success: 34 197 94;
+  --danger: 248 113 113;
+  --warning: 251 191 36;
+  --shadow: 255 255 255;
 }
 
 html,
 body {
-  @apply bg-gray-300;
+  background-color: rgb(var(--bg));
+  color: rgb(var(--text));
+  font-family: var(--font-sans);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
+body {
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* Prevent horizontal scrolling site-wide caused by overflowing elements */
+html, body, #root {
+  overflow-x: hidden;
+}
 
 main {
-  @apply min-h-screen pt-10;
+  min-height: 100vh;
+  padding-top: 2.5rem;
 }
+
 h1 {
-  @apply text-6xl  text-gradient leading-tight tracking-[-2px] font-semibold;
+  font-size: 3.75rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.075rem;
 }
 
 h2 {
-  @apply text-3xl text-dark-200;
+  font-size: 1.875rem;
 }
 
 label {
-  @apply text-dark-200;
+  color: rgb(var(--text-muted));
 }
-input {
-  @apply w-full p-4 inset-shadow rounded-2xl focus:outline-none bg-white;
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 1.5rem;
+  outline: none;
+  border-width: 2px;
+  background-color: rgb(var(--surface));
+  color: rgb(var(--text));
+  border-color: rgb(var(--border));
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgb(var(--text-muted));
 }
 
 textarea {
-  @apply w-full p-4 inset-shadow rounded-2xl focus:outline-none bg-white;
+  resize: none;
 }
 
 form {
-  @apply flex flex-col items-start gap-8 w-full;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2rem;
+  width: 100%;
 }
 
 @layer components {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#AB8C95] via-[#000000] to-[#8E97C5];
+    background-image: linear-gradient(to right, #AB8C95, #000000, #8E97C5);
+    background-clip: text;
+    color: transparent;
   }
   .gradient-border {
-    @apply bg-gradient-to-b from-light-blue-100 to-light-blue-200 p-4 rounded-2xl;
+    background-image: linear-gradient(to bottom, rgba(193, 211, 248, 0.1), rgba(167, 191, 241, 0.3));
+    padding: 1rem;
+    border-radius: 1.5rem;
   }
   .primary-button {
-    @apply primary-gradient text-white rounded-full px-4 py-2 cursor-pointer w-full;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    border-radius: 9999px;
+    color: white;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    background-image: linear-gradient(to bottom, #8e98ff, #606beb);
   }
- 
 }
 
-@utility bg-gradient {
+@layer utilities {
+  .bg-surface {
+    background-color: rgb(var(--surface));
+  }
+  .bg-surface-soft {
+    background-color: rgb(var(--surface-soft));
+  }
+  .bg-surface-strong {
+    background-color: rgb(var(--surface-strong));
+  }
+  .text-text {
+    color: rgb(var(--text));
+  }
+  .text-primary {
+    color: rgb(var(--text));
+  }
+  .text-muted {
+    color: rgb(var(--text-muted));
+  }
+  .border-surface {
+    border-color: rgb(var(--border));
+  }
+  .border-surface-strong {
+    border-color: rgb(var(--border));
+  }
+  .shadow-surface {
+    box-shadow: 0 24px 80px rgba(var(--shadow), 0.12);
+  }
+  .theme-transition {
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+}
+
+html.dark .bg-white {
+  background-color: rgb(var(--surface));
+}
+html.dark .bg-gray-50 {
+  background-color: rgb(var(--surface-soft));
+}
+html.dark .bg-gray-100 {
+  background-color: rgb(var(--surface-strong));
+}
+html.dark .bg-gray-200 {
+  background-color: rgb(var(--surface-strong));
+}
+html.dark .bg-gray-300 {
+  background-color: rgb(var(--surface-soft));
+}
+html.dark .bg-gray-900 {
+  background-color: rgb(var(--surface-strong));
+}
+html.dark .bg-gray-950 {
+  background-color: rgb(var(--surface));
+}
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-gray-700 {
+  color: rgb(var(--text));
+}
+html.dark .text-gray-600,
+html.dark .text-gray-500,
+html.dark .text-gray-400 {
+  color: rgb(var(--text-muted));
+}
+html.dark .border-gray-100,
+html.dark .border-gray-200,
+html.dark .border-gray-300,
+html.dark .border-gray-400 {
+  border-color: rgb(var(--border));
+}
+html.dark .hover\:bg-gray-100:hover,
+html.dark .hover\:bg-gray-50:hover {
+  background-color: rgb(var(--surface-strong));
+}
+html.dark .bg-white\/80 {
+  background-color: rgba(var(--surface), 0.8);
+}
+html.dark .bg-white\/50 {
+  background-color: rgba(var(--surface), 0.5);
+}
+html.dark .bg-gray-50\/50 {
+  background-color: rgba(var(--surface-soft), 0.5);
+}
+html.dark .bg-white\/90 {
+  background-color: rgba(var(--surface), 0.9);
+}
+html.dark .bg-white\/60 {
+  background-color: rgba(var(--surface), 0.6);
+}
+html.dark .hover\:text-gray-900:hover,
+html.dark .hover\:text-gray-800:hover,
+html.dark .hover\:text-gray-700:hover {
+  color: rgb(var(--text));
+}
+
+.bg-gradient {
   background: linear-gradient(to bottom, #f0f4ff 60%, #fa7185cc);
 }
 
-@utility text-gradient {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-[#AB8C95] via-[#000000] to-[#8E97C5];
+.gradient-hover {
+  background-image: linear-gradient(to bottom, rgba(193, 211, 248, 0.1), rgba(167, 191, 241, 0.3));
 }
 
-@utility gradient-hover {
-  @apply bg-gradient-to-b from-light-blue-100 to-light-blue-200;
-}
-
-@utility primary-gradient {
+.primary-gradient {
   background: linear-gradient(to bottom, #8e98ff, #606beb);
   box-shadow: 0px 74px 21px 0px #6678ef00;
 }
 
-@utility primary-gradient-hover {
+.primary-gradient-hover {
   background: linear-gradient(to bottom, #717dff, #4957eb);
 }
 
-@utility inset-shadow {
+.inset-shadow {
   box-shadow: inset 0 0 12px 0 rgba(36, 99, 235, 0.2);
   backdrop-filter: blur(10px);
 }

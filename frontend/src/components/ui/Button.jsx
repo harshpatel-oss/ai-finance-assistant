@@ -9,14 +9,14 @@ export const Button = ({
   loading = false,
   ...props
 }) => {
-  const baseClasses = "rounded-full font-medium transition-all duration-300 cursor-pointer flex items-center justify-center gap-2";
+  const baseClasses = "rounded-full font-medium transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2";
 
   const variants = {
     primary: "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg hover:scale-105 disabled:opacity-50",
-    secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 disabled:opacity-50",
+    secondary: "bg-surface text-text border border-surface hover:bg-surface-soft dark:border-surface-strong dark:hover:bg-slate-800 disabled:opacity-50",
     outline: "border-2 border-blue-500 text-blue-600 hover:bg-blue-50 disabled:opacity-50",
     danger: "bg-red-500 text-white hover:bg-red-600 disabled:opacity-50",
-    ghost: "text-gray-600 hover:text-gray-900 hover:bg-gray-100 disabled:opacity-50"
+    ghost: "text-text hover:text-text hover:bg-surface-soft dark:hover:bg-slate-800 disabled:opacity-50"
   };
 
   const sizes = {

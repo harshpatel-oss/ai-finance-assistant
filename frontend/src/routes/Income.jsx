@@ -206,31 +206,31 @@ const Income = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-green-50 to-gray-50">
+    <div className="min-h-screen bg-surface text-text">
       <div className="p-6 md:p-8 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-text mb-2">
             💵 Income
           </h1>
-          <p className="text-gray-600 text-sm sm:text-base">Track and manage your income sources</p>
+          <p className="text-muted text-sm sm:text-base">Track and manage your income sources</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card hover className="border-2 border-green-100 bg-green-50">
+          <Card hover className="border-2 border-green-100/70 bg-surface-soft dark:border-emerald-600 dark:bg-slate-800">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 font-medium">Total Income</p>
+                  <p className="text-sm text-muted font-medium">Total Income</p>
                   <p className="text-3xl font-bold text-green-600 mt-2">
                     ₹{totalIncome.toLocaleString()}
                   </p>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-muted mt-2">
                     {incomes.length} sources
                   </p>
                 </div>
-                <div className="p-3 bg-green-100 rounded-full">
+                <div className="p-3 bg-green-100/80 dark:bg-emerald-900 rounded-full">
                   <TrendingUp size={28} className="text-green-600" />
                 </div>
               </div>

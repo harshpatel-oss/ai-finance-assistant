@@ -94,10 +94,10 @@ const UserProfile = ({ isOpen, onClose }) => {
           <Loader />
         </div>
       ) : (
-        <div className="space-y-6 sm:space-y-8 bg-white rounded-3xl p-5 sm:p-6 shadow-[0_10px_40px_rgba(15,23,42,0.08)]">
+        <div className="space-y-6 sm:space-y-8 bg-surface rounded-3xl p-5 sm:p-6 shadow-surface">
           {/* User Avatar and Basic Info */}
           <div className="text-center px-3">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border border-gray-200 shadow-sm">
+            <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border border-surface shadow-sm">
               {avatarPreview ? (
                 <img
                   src={avatarPreview}
@@ -111,7 +111,7 @@ const UserProfile = ({ isOpen, onClose }) => {
               )}
             </div>
             <h3 className="text-base sm:text-lg font-semibold">{user?.fullName || user?.username}</h3>
-            <p className="text-sm text-gray-600">{user?.email}</p>
+            <p className="text-sm text-muted">{user?.email}</p>
           </div>
 
           {/* Update Form */}
@@ -136,12 +136,12 @@ const UserProfile = ({ isOpen, onClose }) => {
               placeholder="Enter email"
             />
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Avatar</label>
+              <label className="block text-sm font-medium text-muted mb-1">Avatar</label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => handleInputChange("avatar", e.target.files?.[0] ?? null)}
-                className="w-full rounded border border-gray-300 px-3 py-2"
+                className="w-full rounded border border-surface px-3 py-2 bg-surface text-text"
               />
             </div>
           </div>

@@ -4,6 +4,18 @@ export const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            try {
+                setUser(JSON.parse(storedUser));
+            } catch {
+                setUser(null);
+            }
+        }
+    }, []);
+
     // function to update user data (e.g. after new signup or profile update)
     const updateUser = (userData) => {
         setUser(userData);

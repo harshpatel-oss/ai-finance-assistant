@@ -208,31 +208,31 @@ const Expense = () => {
     );
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-red-50 to-gray-50">
+    <div className="min-h-screen bg-surface text-text">
       <div className="p-6 md:p-8 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-text mb-2">
             💸 Expenses
           </h1>
-          <p className="text-gray-600 text-sm sm:text-base">Track and manage your spending</p>
+          <p className="text-muted text-sm sm:text-base">Track and manage your spending</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card hover className="border-2 border-red-100 bg-red-50">
+          <Card hover className="border-2 border-red-100/70 bg-surface-soft dark:border-red-600 dark:bg-slate-800">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 font-medium">Total Spent</p>
+                  <p className="text-sm text-muted font-medium">Total Spent</p>
                   <p className="text-3xl font-bold text-red-600 mt-2">
                     ₹{totalExpense.toLocaleString()}
                   </p>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-muted mt-2">
                     {expenses.length} transactions
                   </p>
                 </div>
-                <div className="p-3 bg-red-100 rounded-full">
+                <div className="p-3 bg-red-100/80 dark:bg-red-900 rounded-full">
                   <TrendingDown size={28} className="text-red-600" />
                 </div>
               </div>

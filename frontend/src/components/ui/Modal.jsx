@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { X } from "lucide-react";
 
 export const Modal = ({
@@ -9,6 +9,17 @@ export const Modal = ({
   size = "md",
   showCloseButton = true
 }) => {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const sizes = {
@@ -19,7 +30,7 @@ export const Modal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex min-h-screen items-center justify-center overflow-y-auto px-4 py-6">
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -27,16 +38,16 @@ export const Modal = ({
       />
 
       {/* Modal */}
-      <div className={`relative bg-white rounded-2xl shadow-xl ${sizes[size]} w-full mx-4 max-h-[90vh] overflow-y-auto`}>
+      <div className={`relative bg-surface rounded-2xl shadow-xl ${sizes[size]} w-full max-w-full mx-auto max-h-[calc(100vh-3rem)] overflow-y-auto`}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
-          <h2 className="text-base sm:text-lg font-semibold text-gray-900">{title}</h2>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-surface">
+          <h2 className="text-base sm:text-lg font-semibold text-text">{title}</h2>
           {showCloseButton && (
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-2 hover:bg-surface-soft rounded-lg transition-colors"
             >
-              <X size={20} className="text-gray-600" />
+              <X size={20} className="text-text" />
             </button>
           )}
         </div>

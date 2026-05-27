@@ -96,9 +96,9 @@ function Home() {
   if (error) {
     return (
       <div className="p-6 md:p-8 max-w-7xl mx-auto">
-        <Card className="border-2 border-red-100 bg-red-50">
+        <Card className="border-2 border-red-100/70 bg-surface-soft dark:bg-slate-800 dark:border-red-600">
           <CardContent className="pt-6">
-            <p className="text-red-700 text-center font-medium">{error}</p>
+            <p className="text-red-600 dark:text-red-300 text-center font-medium">{error}</p>
             <Button onClick={fetchDashboardData} className="mt-4 mx-auto" size="sm">
               Try Again
             </Button>
@@ -113,7 +113,7 @@ function Home() {
       <div className="p-6 md:p-8 max-w-7xl mx-auto">
         <Card>
           <CardContent className="pt-6">
-            <p className="text-center text-gray-600">No data available</p>
+            <p className="text-center text-muted">No data available</p>
           </CardContent>
         </Card>
       </div>
@@ -160,15 +160,15 @@ function Home() {
   const COLORS = ["#10b981", "#ef4444"];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-gray-50">
+    <div className="min-h-screen bg-surface text-text">
       <div className="p-6 md:p-8 max-w-7xl mx-auto">
         
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-text mb-2">
             {getGreeting()}, {user?.username || "User"}! 👋
           </h1>
-          <p className="text-gray-600 text-sm sm:text-base">Here's your financial overview for today</p>
+          <p className="text-muted text-sm sm:text-base">Here's your financial overview for today</p>
         </div>
 
         {/* Quick Actions */}
@@ -258,9 +258,10 @@ function Home() {
                     <YAxis stroke="#9ca3af" />
                     <Tooltip 
                       contentStyle={{ 
-                        backgroundColor: "#f9fafb", 
-                        border: "1px solid #e5e7eb",
-                        borderRadius: "8px"
+                        backgroundColor: "rgba(var(--surface), 0.96)", 
+                        border: "1px solid rgba(var(--border), 1)",
+                        borderRadius: "8px",
+                        color: "rgb(var(--text))"
                       }}
                       formatter={(value) => [`₹${value.toFixed(2)}`, "Income"]}
                     />
@@ -306,9 +307,10 @@ function Home() {
                     <YAxis stroke="#9ca3af" />
                     <Tooltip 
                       contentStyle={{ 
-                        backgroundColor: "#f9fafb", 
-                        border: "1px solid #e5e7eb",
-                        borderRadius: "8px"
+                        backgroundColor: "rgba(var(--surface), 0.96)", 
+                        border: "1px solid rgba(var(--border), 1)",
+                        borderRadius: "8px",
+                        color: "rgb(var(--text))"
                       }}
                       formatter={(value) => [`₹${value.toFixed(2)}`, "Expense"]}
                     />
@@ -323,7 +325,7 @@ function Home() {
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-80 flex items-center justify-center text-gray-500">
+                <div className="h-80 flex items-center justify-center text-muted">
                   No expense data available
                 </div>
               )}
@@ -366,11 +368,11 @@ function Home() {
 
           {/* Quick Stats */}
           <div className="lg:col-span-2 grid grid-cols-2 gap-4">
-            <Card variant="gradient">
-              <div className="flex items-start justify-between">
+            <Card className="bg-surface-soft border border-surface-strong dark:bg-slate-800 dark:border-slate-700">
+              <div className="flex items-start justify-between p-6">
                 <div>
-                  <p className="text-sm text-gray-600 font-medium">Last 60 Days Income</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-2">
+                  <p className="text-sm text-muted font-medium">Last 60 Days Income</p>
+                  <p className="text-2xl font-bold text-text mt-2">
                     ₹{last60DaysIncome?.total?.toLocaleString() || "0"}
                   </p>
                 </div>
@@ -378,11 +380,11 @@ function Home() {
               </div>
             </Card>
 
-            <Card variant="gradient">
-              <div className="flex items-start justify-between">
+            <Card className="bg-surface-soft border border-surface-strong dark:bg-slate-800 dark:border-slate-700">
+              <div className="flex items-start justify-between p-6">
                 <div>
-                  <p className="text-sm text-gray-600 font-medium">Last 30 Days Expenses</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-2">
+                  <p className="text-sm text-muted font-medium">Last 30 Days Expenses</p>
+                  <p className="text-2xl font-bold text-text mt-2">
                     ₹{last30DaysExpenses?.total?.toLocaleString() || "0"}
                   </p>
                 </div>
@@ -392,17 +394,17 @@ function Home() {
 
             <Card>
               <div>
-                <p className="text-sm text-gray-600 font-medium">Average Daily</p>
+                <p className="text-sm text-muted font-medium">Average Daily</p>
                 <p className="text-2xl font-bold text-indigo-600 mt-2">
                   ₹{(last30DaysExpenses?.total / 30).toFixed(0)}
                 </p>
-                <p className="text-xs text-gray-500 mt-1">Spend</p>
+                <p className="text-xs text-muted mt-1">Spend</p>
               </div>
             </Card>
 
             <Card>
               <div>
-                <p className="text-sm text-gray-600 font-medium">Net Savings</p>
+                <p className="text-sm text-muted font-medium">Net Savings</p>
                 <p className={`text-2xl font-bold mt-2 ${
                   (totalIncome - totalExpense) >= 0 ? "text-green-600" : "text-red-600"
                 }`}>

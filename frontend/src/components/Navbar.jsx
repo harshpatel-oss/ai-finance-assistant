@@ -1,11 +1,12 @@
 import React, { useState, useContext, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut, Moon, Sun } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Menu, X, LogOut, Moon, Sun, Sparkles } from "lucide-react";
 import { Button } from "./ui/Button";
 import { UserProfile } from "./ui";
 
 const Navbar = ({ isDark = false, toggleDark = () => {} }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const isAuthenticated = !!localStorage.getItem("accessToken");
 
   const [isOpen, setIsOpen] = useState(false);
@@ -28,52 +29,68 @@ const Navbar = ({ isDark = false, toggleDark = () => {} }) => {
 
   const handleLogout = () => {
     localStorage.clear();
-    navigate("/login");
+    navigate("/");
   };
 
   const navLinks = [
     { path: "/dashboard", label: "Dashboard" },
     { path: "/income", label: "Income" },
     { path: "/expense", label: "Expense" },
-    { path: "/ai-review", label: "AI Review" }
+    { path: "/ai-review", label: "AI Assistant" }
   ];
+
+  const activeLabel = navLinks.find((l) => l.path === location.pathname)?.label;
 
   return (
     <>
       <nav className={`fixed top-0 left-0 right-0 z-40 shadow-sm transition-colors ${
         isDark ? "bg-gray-900 text-white" : "bg-white text-gray-900 border-b border-gray-100"
       }`}>
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          {/* Logo */}
-          <div
-            className="text-lg font-bold cursor-pointer flex items-center gap-2"
-            onClick={() => navigate("/dashboard")}
-          >
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white">
-              💰
+          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            {/* Logo */}
+            <div
+              className="text-lg font-bold cursor-pointer flex items-center gap-2"
+              onClick={() => navigate("/dashboard")}
+            >
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white">
+                💰
+              </div>
+              <span className="hidden md:block">AI Finance</span>
             </div>
-            <span className="hidden md:block">AI Finance</span>
-          </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-8">
-            {isAuthenticated ? (
-              <>
-                {navLinks.map((link) => (
+            {/* Desktop Menu (left) */}
+            <div className="hidden md:flex items-center gap-4">
+              {navLinks.map((link) => {
+                const isActive = location.pathname === link.path;
+                return (
                   <Link
                     key={link.path}
                     to={link.path}
-                    className={`text-sm font-medium transition-colors ${
-                      isDark
-                        ? "hover:text-blue-400"
-                        : "hover:text-blue-600"
-                    }`}
+                    className={`text-sm font-medium transition-all px-2 py-1 rounded-md ${isActive ? 'text-indigo-600 bg-indigo-50 ring-1 ring-indigo-100' : 'text-gray-700 hover:text-indigo-600 hover:bg-indigo-50'}`}
                   >
                     {link.label}
                   </Link>
-                ))}
-              </>
-            ) : null}
+                );
+              })}
+            </div>
+
+            {/* Active page label near left */}
+            <div className="hidden md:flex items-center ml-2">
+              {activeLabel && (
+                activeLabel === 'AI Assistant' ? (
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg text-white"><Sparkles size={18} /></div>
+                    <div className="text-left">
+                      <div className="text-sm font-semibold text-gray-900">AI Assistant</div>
+                      <div className="text-xs text-gray-500">Financial insights powered by AI</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-600">{activeLabel}</div>
+                )
+              )}
+            </div>
           </div>
 
           {/* Right Section */}
@@ -169,11 +186,11 @@ const Navbar = ({ isDark = false, toggleDark = () => {} }) => {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden"
+              className="md:hidden p-2 rounded-lg bg-gray-100 hover:bg-gray-200"
               onClick={() => setIsOpen(true)}
               aria-label="Open Menu"
             >
-              <Menu size={24} />
+              <Menu size={22} />
             </button>
           </div>
         </div>
@@ -189,7 +206,7 @@ const Navbar = ({ isDark = false, toggleDark = () => {} }) => {
 
           <div className={`absolute top-0 right-0 h-full w-4/5 max-w-sm ${
             isDark ? "bg-gray-900" : "bg-white"
-          } shadow-lg p-5 flex flex-col`}>
+          } shadow-xl p-5 flex flex-col`}>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold">Menu</h2>
               <button onClick={() => setIsOpen(false)}>
@@ -197,7 +214,7 @@ const Navbar = ({ isDark = false, toggleDark = () => {} }) => {
               </button>
             </div>
 
-            {isAuthenticated && (
+            { isAuthenticated && (
               <div className="mb-6 rounded-3xl border border-gray-200 p-4 bg-white shadow-sm">
                 <div className="flex items-center gap-3">
                   {avatarUrl && !imgError ? (
@@ -231,20 +248,16 @@ const Navbar = ({ isDark = false, toggleDark = () => {} }) => {
 
             {/* Mobile Links */}
             <div className="flex flex-col gap-4 mb-6">
-              {isAuthenticated ? (
-                <>
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.path}
-                      to={link.path}
-                      onClick={() => setIsOpen(false)}
-                      className="text-base font-medium hover:text-blue-600"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </>
-              ) : null}
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={() => setIsOpen(false)}
+                  className="text-base font-medium hover:text-indigo-600"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </div>
 
             <div className="flex-grow" />

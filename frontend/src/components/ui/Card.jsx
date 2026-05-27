@@ -6,13 +6,13 @@ export const Card = ({
   hover = false,
   variant = "default"
 }) => {
-  const baseClasses = "rounded-2xl bg-white shadow-md transition-all duration-300";
+  const baseClasses = "rounded-2xl bg-surface border border-surface shadow-md transition-all duration-300";
   const hoverClasses = hover ? "hover:shadow-lg hover:scale-105" : "";
   const variants = {
     default: "p-6",
     sm: "p-4",
     lg: "p-8",
-    gradient: "bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/50"
+    gradient: "bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/50 dark:from-slate-900 dark:to-slate-800 dark:border-slate-700"
   };
 
   return (
@@ -29,13 +29,13 @@ export const CardHeader = ({ children, className = "" }) => (
 );
 
 export const CardTitle = ({ children, className = "" }) => (
-  <h3 className={`text-lg font-semibold text-gray-900 ${className}`}>
+  <h3 className={`text-lg font-semibold text-text ${className}`}>
     {children}
   </h3>
 );
 
 export const CardDescription = ({ children, className = "" }) => (
-  <p className={`text-sm text-gray-600 mt-1 ${className}`}>
+  <p className={`text-sm text-muted mt-1 ${className}`}>
     {children}
   </p>
 );
@@ -47,7 +47,7 @@ export const CardContent = ({ children, className = "" }) => (
 );
 
 export const CardFooter = ({ children, className = "" }) => (
-  <div className={`mt-6 pt-4 border-t border-gray-200 ${className}`}>
+  <div className={`mt-6 pt-4 border-t border-surface ${className}`}>
     {children}
   </div>
 );

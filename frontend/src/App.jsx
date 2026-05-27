@@ -6,7 +6,9 @@ import Income from './routes/Income'
 import Expense from './routes/Expense'
 import Home from './routes/Home'
 import AiReview from './routes/AiReview'
-import Navbar from './components/Navbar'
+import Landing from './routes/PremiumLanding'
+import Navbar from './components/PremiumNavbar'
+import ProtectedRoute from './components/ProtectedRoute'
 import {
   BrowserRouter as Router,
   Routes,
@@ -16,33 +18,37 @@ import {
 } from "react-router-dom"
 import { User } from 'lucide-react'
 import UserProvider from './context/userContext.jsx'
+import { ThemeProvider } from './context/ThemeContext'
 
 function App() {
   return (
-    <UserProvider>
-    <Router>
-      <AppContent />
-    </Router>
-    </UserProvider>
+    <ThemeProvider>
+      <UserProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </UserProvider>
+    </ThemeProvider>
   );
 }
 
 
 function AppContent() {
   const location = useLocation();
-  const hideNavbar = location.pathname === '/login' || location.pathname === '/signUp';
+  // Hide navbar on landing since PremiumLanding has its own header
+  const hideNavbar = location.pathname === '/';
 
   return (
-    <div>
+    <div className="pt-16">
       {!hideNavbar && <Navbar />}
       <Routes>
         <Route path='/' element={<Root />} />
         <Route path='/login' element={<Login />} />
         <Route path='/signUp' element={<SignUp />} />
-        <Route path='/income' element={<Income />} />
-        <Route path='/expense' element={<Expense />} />
+        <Route path='/income' element={<ProtectedRoute><Income /></ProtectedRoute>} />
+        <Route path='/expense' element={<ProtectedRoute><Expense /></ProtectedRoute>} />
         <Route path="/ai-review" element={<AiReview />} />
-        <Route path='/dashboard' element={<Home />} />
+        <Route path='/dashboard' element={<ProtectedRoute><Home /></ProtectedRoute>} />
       </Routes>
     </div>
   );
@@ -51,11 +57,7 @@ function AppContent() {
 
 const Root = () => {
   const isAuthenticated = !!localStorage.getItem("accessToken");
-  return isAuthenticated ? (
-    <Navigate to="/dashboard" />
-  ) : (
-    <Navigate to="/login" />
-  );
+  return isAuthenticated ? <Navigate to="/dashboard" /> : <Landing />;
 };
 
 export default App;
