@@ -1,6 +1,8 @@
-# Finance Assistant - Full-Stack Expense Tracker
+# FinAI - AI-Powered Finance Assistant
 
 A modern, AI-powered personal finance management application built with React, Express.js, and MongoDB. Track income and expenses, analyze spending patterns, and get AI-powered financial insights with a beautiful, responsive UI.
+
+**🔗 [Live Demo](https://ai-finance-assistant-frontend-leoz.onrender.com/)**
 
 ## 🚀 Features
 
@@ -44,7 +46,7 @@ A modern, AI-powered personal finance management application built with React, E
 ## 📁 Project Structure
 
 ```
-finance-assistant/
+FinAI/
 ├── backend/
 │   ├── src/
 │   │   ├── app.js                 # Express app configuration
@@ -78,41 +80,57 @@ finance-assistant/
 │   │   │   └── cloudinary.js
 │   │   └── db/                   # Database connection
 │   │       └── index.js
+│   ├── public/                   # Static files
+│   │   └── temp/
 │   ├── package.json
 │   └── Readme.md
 ├── frontend/
 │   ├── src/
 │   │   ├── App.jsx               # Main app component
-│   │   ├── main.jsx              # App entry point
 │   │   ├── App.css               # Global styles
+│   │   ├── main.jsx              # App entry point
 │   │   ├── components/           # Reusable UI components
-│   │   │   ├── ui/
-│   │   │   │   ├── Card.jsx
-│   │   │   │   ├── Button.jsx
-│   │   │   │   ├── Input.jsx
-│   │   │   │   ├── Modal.jsx
-│   │   │   │   ├── Toast.jsx
-│   │   │   │   ├── StatCard.jsx
-│   │   │   │   └── Transactions.jsx
-│   │   │   └── Navbar.jsx        # Navigation with dark mode
-│   │   ├── Auth/                 # Authentication components
+│   │   │   ├── Navbar.jsx        # Navigation with dark mode
+│   │   │   ├── PremiumNavbar.jsx # Premium navbar variant
+│   │   │   ├── ProtectedRoute.jsx# Auth protection wrapper
+│   │   │   └── ui/               # UI component library
+│   │   │       ├── Badge.jsx
+│   │   │       ├── Button.jsx
+│   │   │       ├── Card.jsx
+│   │   │       ├── EmptyState.jsx
+│   │   │       ├── Input.jsx
+│   │   │       ├── Loader.jsx
+│   │   │       ├── Modal.jsx
+│   │   │       ├── StatCard.jsx
+│   │   │       ├── Toast.jsx
+│   │   │       ├── Transactions.jsx
+│   │   │       ├── UserProfile.jsx
+│   │   │       └── index.js
+│   │   ├── Auth/                 # Authentication pages
 │   │   │   ├── login.jsx
 │   │   │   └── signUp.jsx
 │   │   ├── context/              # React context
-│   │   │   └── userContext.jsx
+│   │   │   ├── ThemeContext.jsx  # Dark/Light mode theme
+│   │   │   └── userContext.jsx   # User authentication context
+│   │   ├── hooks/                # Custom React hooks
+│   │   ├── layouts/              # Layout components
 │   │   ├── routes/               # Page components
+│   │   │   ├── Landing.jsx       # Landing page
+│   │   │   ├── PremiumLanding.jsx# Premium features landing
 │   │   │   ├── Home.jsx          # Dashboard
 │   │   │   ├── Income.jsx        # Income tracking
 │   │   │   ├── Expense.jsx       # Expense tracking
-│   │   │   └── AiReview.jsx      # AI chat interface
+│   │   │   ├── AiReview.jsx      # AI assistant chat
 │   │   ├── utils/                # Utility functions
-│   │   │   ├── apiPaths.js
-│   │   │   └── axiosInstance.js
+│   │   │   ├── apiPaths.js       # API endpoint definitions
+│   │   │   └── axiosInstance.js  # Axios configuration
 │   │   └── assets/               # Static assets
-│   ├── public/
+│   ├── public/                   # Public static files
+│   │   └── finai-logo.svg        # FinAI logo
 │   ├── package.json
 │   ├── vite.config.js
 │   ├── index.html
+│   ├── eslint.config.js
 │   └── README.md
 └── README.md                      # This file
 ```
@@ -271,7 +289,19 @@ import { DollarSign } from "lucide-react";
 
 ## 📄 Page Components
 
-### 1. Dashboard (`Home.jsx`)
+### 1. Landing Page (`Landing.jsx`)
+- Beautiful hero section with call-to-action buttons
+- Feature showcase with cards
+- Customer testimonials
+- Responsive design for all devices
+- Quick access to login, sign up, or dashboard
+
+### 2. Premium Landing (`PremiumLanding.jsx`)
+- Premium features showcase
+- Enhanced UI with gradient backgrounds
+- Upgrade prompts and pricing information
+
+### 3. Dashboard (`Home.jsx`)
 - Animated stat cards with counter animations
 - Income & expense trend charts (Area Chart)
 - Income vs Expense distribution (Pie Chart)
@@ -279,23 +309,25 @@ import { DollarSign } from "lucide-react";
 - Recent transactions list
 - Fully responsive grid layout
 
-### 2. Expense Tracking (`Expense.jsx`)
+### 4. Expense Tracking (`Expense.jsx`)
 - Add/edit/delete expenses with emoji picker
-- Expense trend chart (last 14 days)
+- Expense trend chart (last 365 days)
 - Category distribution progress bars
 - Search and filter functionality
 - Download as Excel
 - Beautiful expense list with icons
+- Dark mode support with themed tooltips
 
-### 3. Income Tracking (`Income.jsx`)
+### 5. Income Tracking (`Income.jsx`)
 - Add/edit/delete income sources with emoji picker
 - Income trend visualization
 - Income source distribution
 - Search and filter
 - Excel export
 - Green color scheme
+- Dark mode support with themed tooltips
 
-### 4. AI Assistant Chat (`AiReview.jsx`)
+### 6. AI Assistant Chat (`AiReview.jsx`)
 - ChatGPT-like interface
 - Suggested questions
 - Copy-to-clipboard functionality
