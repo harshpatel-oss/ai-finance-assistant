@@ -129,7 +129,7 @@ const PremiumNavbar = () => {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className={`p-2.5 rounded-lg transition-colors ${
+              className={`p-2.5 rounded-lg transition-colors cursor-pointer ${
                 isDark
                   ? 'bg-gray-800 hover:bg-gray-700 text-yellow-400'
                   : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
@@ -143,7 +143,7 @@ const PremiumNavbar = () => {
               <button
                 type="button"
                 onClick={() => setShowProfile(true)}
-                className={`hidden sm:inline-flex items-center justify-center w-10 h-10 rounded-full border transition-colors ${
+                className={`hidden sm:inline-flex items-center justify-center w-10 h-10 rounded-full border transition-colors cursor-pointer ${
                   isDark ? 'border-gray-700 bg-gray-900 text-white' : 'border-gray-200 bg-white text-gray-900'
                 } hover:ring-2 hover:ring-indigo-400`}
                 aria-label="Open profile"
@@ -160,7 +160,7 @@ const PremiumNavbar = () => {
             {isAuthenticated ? (
               <button
                 onClick={handleLogout}
-                className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
                   isDark
                     ? 'bg-red-600/20 text-red-400 hover:bg-red-600/30'
                     : 'bg-red-100 text-red-700 hover:bg-red-200'
@@ -173,7 +173,7 @@ const PremiumNavbar = () => {
               <div className="hidden sm:flex items-center gap-2">
                 <Link to="/login">
                   <button
-                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
                       isDark
                         ? 'text-white hover:bg-gray-800'
                         : 'text-gray-900 hover:bg-gray-100'
@@ -183,7 +183,7 @@ const PremiumNavbar = () => {
                   </button>
                 </Link>
                 <Link to="/signUp">
-                  <button className="px-4 py-2 rounded-lg font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg hover:shadow-indigo-500/30 transition-all">
+                  <button className="px-4 py-2 rounded-lg font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg hover:shadow-indigo-500/30 transition-all cursor-pointer">
                     Sign up
                   </button>
                 </Link>
@@ -304,7 +304,7 @@ const PremiumNavbar = () => {
                     </button>
                   </Link>
                   <Link to="/signUp" onClick={() => setIsOpen(false)}>
-                    <button className="w-full px-4 py-2 rounded-lg font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg transition-all">
+                    <button className="w-full px-4 py-2 rounded-lg font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-lg transition-all cursor-pointer">
                       Sign up
                     </button>
                   </Link>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useTheme } from "../context/ThemeContext";
 import { axiosInstance } from "../utils/axiosInstance.js";
 import { API_PATHS } from "../utils/apiPaths.js";
 import {
@@ -30,6 +31,7 @@ const Income = () => {
   const [filterSource, setFilterSource] = useState("");
   const { toasts, showToast } = useToast();
 
+  const { isDark } = useTheme();
   const [formData, setFormData] = useState({
     source: "",
     amount: "",
@@ -382,14 +384,18 @@ const Income = () => {
               {chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <CartesianGrid strokeDasharray="3 3" stroke={isDark ? "#374151" : "#e5e7eb"} />
                     <XAxis dataKey="date" stroke="#9ca3af" />
                     <YAxis stroke="#9ca3af" />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: "#f9fafb",
-                        border: "1px solid #e5e7eb",
+                        backgroundColor: isDark ? "#111827" : "#f9fafb",
+                        border: `1px solid ${isDark ? "#374151" : "#e5e7eb"}`,
                         borderRadius: "8px",
+                        color: isDark ? "#e5e7eb" : "#111827",
+                      }}
+                      labelStyle={{
+                        color: isDark ? "#d1d5db" : "#6b7280",
                       }}
                       formatter={(value) => `₹${value.toFixed(2)}`}
                     />
