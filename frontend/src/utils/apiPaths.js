@@ -1,5 +1,5 @@
- export const BASE_URL = "http://localhost:8000"
-
+//  export const BASE_URL = "http://localhost:8000" // local backend URL
+export const BASE_URL = "https://ai-finance-assistant-65fg.onrender.com" // actual backend URL
 //utils/apiPaths.js
 
 export const API_PATHS = {
