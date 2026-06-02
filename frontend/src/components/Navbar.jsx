@@ -56,7 +56,7 @@ const Navbar = ({ isDark = false, toggleDark = () => {} }) => {
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white">
                 💰
               </div>
-              <span className="hidden md:block">AI Finance</span>
+              <span className="hidden md:block">FinAI</span>
             </div>
 
             {/* Desktop Menu (left) */}
