@@ -49,7 +49,7 @@ const registerUser = asyncHandler(async (req, res) => {
         }
 
         const user = await User.create({
-            avatar: avatar.url,
+            avatar: avatar.secure_url || avatar.url,
             email,
             username : username.toLowerCase(),
             fullName,
@@ -247,7 +247,7 @@ const updateProfile = asyncHandler(async (req, res) => {
         if(!avatar){
             throw new ApiError(500 , 'Avatar upload failed, please try again');
         }
-        updatedData.avatar = avatar.url;
+        updatedData.avatar = avatar.secure_url || avatar.url;
     }
 
     const updatedUser = await User.findByIdAndUpdate(req.user._id,
