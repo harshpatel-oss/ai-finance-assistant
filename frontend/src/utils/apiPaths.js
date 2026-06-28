@@ -1,7 +1,5 @@
-// export const BASE_URL = "http://localhost:8000" // local backend URL
-export const BASE_URL = "https://ai-finance-assistant-65fg.onrender.com" // actual backend URL
-//utils/apiPaths.js
-
+//export const  API_BASE_URL = import.meta.env.VITE_API_URL ;
+export const  API_BASE_URL =  "http://localhost:8000";
 export const API_PATHS = {
     AUTH:{
         LOGIN:"/api/v1/users/login",
