@@ -6,7 +6,8 @@ import cookieParser from 'cookie-parser';
 const app = express();
 
 app.use(cors({
-    origin: process.env.CORS_ORIGIN ,
+    //origin: process.env.CORS_ORIGIN , 
+    origin: "http://localhost:5173" ,
     credentials: true
 }));
 
@@ -23,13 +24,14 @@ import incomeRouter from './routes/income.routes.js';
 import expenseRouter from './routes/expense.routes.js';
 import dashboardRouter from './routes/dashboard.routes.js';
 import aiRouter from './routes/ai.routes.js'; // Import AI routes
+import errorHandler from "./middlewares/error.middleware.js";
 
 app.use('/api/v1/users' , userRouter);
 app.use('/api/v1/income',incomeRouter)  
 app.use('/api/v1/expense',expenseRouter);   
 app.use('/api/v1/dashboard',dashboardRouter);
 app.use('/api/v1/ai', aiRouter ); // Use AI routes
-
+app.use(errorHandler);
 
 export default app;
 
