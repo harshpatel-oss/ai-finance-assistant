@@ -57,6 +57,7 @@ function Login() {
       console.error("Login error:", error);
       const message =
         error.response?.data?.message || error.message || "Login failed. Please try again.";
+        console.log(message);
       setErrors({ form: message });
     } finally {
       setLoading(false);

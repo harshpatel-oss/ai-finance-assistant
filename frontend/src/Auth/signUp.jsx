@@ -122,16 +122,33 @@ function SignUp() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Input label="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} error={errors.fullName} />
-            <Input label="Username" value={username} onChange={(e) => setUsername(e.target.value)} error={errors.username} />
+            <Input 
+            label="Full name" 
+            placeholder="Enter your full name"
+            value={fullName} 
+            onChange={(e) => setFullName(e.target.value)} 
+            error={errors.fullName} />
+            <Input 
+            label="Username"
+            placeholder="Enter your username" 
+            value={username} 
+            onChange={(e) => setUsername(e.target.value)} 
+            error={errors.username} />
           </div>
 
-          <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />
+          <Input 
+          label="Email"
+          placeholder="Enter your email" 
+          type="email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          error={errors.email} />
 
           <div className="relative">
             <Input
               dark={isDark}
               label="Password"
+              placeholder="Enter your password"
               type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}

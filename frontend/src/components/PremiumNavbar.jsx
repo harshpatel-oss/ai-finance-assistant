@@ -43,17 +43,19 @@ const PremiumNavbar = () => {
   }
 
   const navLinks = isAuthenticated
-    ? [
-        { href: '/dashboard', label: 'Dashboard' },
-        { href: '/income', label: 'Income' },
-        { href: '/expense', label: 'Expense' },
-        { href: '/ai-review', label: 'AI Assistant' },
-      ]
-    : [
-        { href: '#features', label: 'Features' },
-        { href: '#how-it-works', label: 'How it works' },
-        { href: '#pricing', label: 'Pricing' },
-      ]
+  ? [
+      { href: "/dashboard", label: "Dashboard" },
+      { href: "/income", label: "Income" },
+      { href: "/expense", label: "Expense" },
+      { href: "/ai-review", label: "AI Assistant" },
+    ]
+  : isOnLanding
+  ? [
+      { href: "#features", label: "Features" },
+      { href: "#how-it-works", label: "How it works" },
+      { href: "#pricing", label: "Pricing" },
+    ]
+  : [];
 
   return (
     <nav
