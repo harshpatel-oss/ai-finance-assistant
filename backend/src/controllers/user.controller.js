@@ -105,11 +105,11 @@ const loginUser = asyncHandler(async (req, res) => {
         "-password -refreshToken "
           );
 
-      const options = {
-        httpOnly:true,
-        secure:true
-      }    
-
+       const options = {
+         httpOnly:true,
+         secure:process.env.NODE_ENV === "production",
+         sameSite:process.env.NODE_ENV === "production" ? "None":"Lax",
+       }
         return res
         .status(200)
         .cookie('accessToken' , accessToken , options)
@@ -141,10 +141,11 @@ const logoutUser = asyncHandler(async (req, res) => {
             new:true
         }
     );
-    const options = {
-        httpOnly:true,
-        secure:true,
-    }
+     const options = {
+         httpOnly:true,
+         secure:process.env.NODE_ENV === "production",
+         sameSite:process.env.NODE_ENV === "production" ? "None":"Lax",
+       }
     return res
     .status(200)
     .clearCookie("accessToken",options) //cookie ko expire krdo
@@ -157,7 +158,9 @@ const logoutUser = asyncHandler(async (req, res) => {
 const refreshAccessToken = asyncHandler(async (req, res) => {
     
     const incomingRefreshToken = req.cookies?.refreshToken || req.body?.refreshToken ;
-
+    console.log(req.cookies?.refreshToken);
+    console.log('--------');
+    console.log( req.body?.refreshToken);
     if(!incomingRefreshToken){
         throw new ApiError(401 , "Unauthorized request");
     }
@@ -180,23 +183,27 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
  
      const options = {
          httpOnly:true,
-         secure:true
+         secure:process.env.NODE_ENV === "production",
+         sameSite:process.env.NODE_ENV === "production" ? "None":"Lax",
        }
  
-     const {accessToken , newRefreshToken} = await generateAccessAndRefreshToken(user._id);
- 
-     return res
-     .status(200)
-     .cookie('accessToken' , accessToken , options)
-     .cookie('refreshToken' , newRefreshToken , options)
-     .json(
-         new ApiResponse(
-             200 ,
-             {accessToken , newRefreshToken} ,
-             'Access token refreshed successfully'
-             )
-         //access token and refresh token is also sent in response body for client side storage if needed acchhi practice hai
-     );
+    const { accessToken, refreshToken } =
+    await generateAccessAndRefreshToken(user._id);
+
+return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+        new ApiResponse(
+            200,
+            {
+                accessToken,
+                refreshToken,
+            },
+            "Access token refreshed successfully"
+        )
+    );
    } 
    catch (error) 
    {

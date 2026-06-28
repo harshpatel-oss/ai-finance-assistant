@@ -24,7 +24,7 @@ import incomeRouter from './routes/income.routes.js';
 import expenseRouter from './routes/expense.routes.js';
 import dashboardRouter from './routes/dashboard.routes.js';
 import aiRouter from './routes/ai.routes.js'; // Import AI routes
-import errorHandler from "./middlewares/error.middleware.js";
+import errorHandler from "./middlewares/errorHandler.middleware.js";
 
 app.use('/api/v1/users' , userRouter);
 app.use('/api/v1/income',incomeRouter)  
